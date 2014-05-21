@@ -7,5 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Daniel Grove <danny@drgrovellc.com>",
-  "license": "AGPL"
+  "license": "AGPL",
+  "dependencies": {
+    "express": "^4.2.0",
+    "body-parser": "^1.2.0"
+  }
 }
