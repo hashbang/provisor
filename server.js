@@ -9,5 +9,5 @@ app.post('/create', user.createUser)
 app.get('*', function(req,res){
     res.send('Not Found')
 })
-app.listen(config.app.port)
+app.listen(config.app.port, 'localhost')
 console.log('Listening on port ' + config.app.port)
