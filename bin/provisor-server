@@ -1,0 +1,96 @@
+#!/usr/bin/python3
+
+import re
+import os
+import base64
+import pwd
+from subprocess import check_call, CalledProcessError, TimeoutExpired
+from flask import Flask
+from flask.ext.restful import Resource, Api
+from flask.ext.restful.reqparse import RequestParser
+
+app = Flask(__name__)
+api = Api(app)
+
+# SSH Public Key Validator
+def pubkey(value):
+    try:
+        base64.decodestring(bytes(value,'utf8'))
+    except TypeError:
+        raise ValueError("Public Key Is Invalid")
+    except:
+        raise ValueError('Public Key Is Invalid')
+
+    return value
+
+# Username validator
+def username(value):
+    reserved_usernames = [
+        'admin',
+        'administrator',
+        'postmaster',
+        'hostmaster',
+        'webmaster'
+    ] 
+    if re.compile(r"^[a-zA-Z0-9_]{1,31}$").match(value) is None:
+        raise ValueError('Username is invalid')
+    if value in reserved_usernames:
+        raise ValueError('Username is reserved')
+    user_exists = True
+    try:
+        pwd.getpwnam(value)
+    except:
+        user_exists = False
+    if user_exists:
+        raise ValueError('Username already exists')
+    return value
+
+
+class UserCreate(Resource):
+    def __init__(self):
+        self.reqparse = RequestParser()
+        self.reqparse.add_argument(
+            'user',
+            type = username,
+            required = True,
+            location = 'json'
+        )
+        self.reqparse.add_argument(
+            'key',
+            type = pubkey,
+            required = True,
+            location = 'json'
+        )
+        self.reqparse.add_argument(
+            'keyType',
+            type = str,
+            required = True,
+            choices = ['ssh-rsa','ssh-dsa'],
+            help = "No valid keyType provided",
+            location = 'json'
+        )
+        super(UserCreate, self).__init__()
+        
+    def post(self):
+        args = self.reqparse.parse_args()
+        try:
+            check_call(
+                [ 'sudo',
+                  '%s/bin/provisor-create' % os.getcwd(),
+                  args['user'],
+                  args['keyType'],
+                  args['key']
+                ],
+                timeout=5
+            )
+        except TimeoutExpired:
+            return {'message': 'User creation script timed out'}
+        except CalledProcessError:
+            return {'message': 'User creation script failed'}
+       
+        return {'message': 'success'}
+
+api.add_resource(UserCreate, '/')
+
+if __name__ == '__main__':
+    app.run(port=8453,debug=True)
