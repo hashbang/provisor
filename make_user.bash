@@ -74,5 +74,14 @@ fi
 ## Set the users quota.
 /usr/sbin/setquota -u "${THEUSER}" "976563" "1220703" "0" "0" -a "/dev/vda1"
 
+## Create the Public directory and/or fix the permissions.
+
+if [ ! -f "/home/${THEUSER}/Public" ]; then
+  mkdir "/home/${THEUSER}/Public"
+fi
+
+chown "${THEUSER}:www-data" "/home/${THEUSER}/Public"
+chmod 755 "/home/${THEUSER}/Public"
+
 ERROR="no"
 exit 0
