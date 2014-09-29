@@ -22,7 +22,7 @@ def pubkey(value):
     except:
         raise ValueError('Public Key Is Invalid')
 
-    return value
+    return value[1]
 
 # Username validator
 def username(value):
@@ -66,14 +66,6 @@ class UserCreate(Resource):
             required = True,
             location = 'json'
         )
-        self.reqparse.add_argument(
-            'keyType',
-            type = str,
-            required = True,
-            choices = ['ssh-rsa','ssh-dsa'],
-            help = "No valid keyType provided",
-            location = 'json'
-        )
         super(UserCreate, self).__init__()
         
     def post(self):
@@ -83,7 +75,6 @@ class UserCreate(Resource):
                 [ 'sudo',
                   '%s/bin/provisor-create' % os.getcwd(),
                   args['user'],
-                  args['keyType'],
                   args['key']
                 ],
                 timeout=5
