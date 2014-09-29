@@ -14,13 +14,13 @@ KEYHEADER=$2
 KEYTEXT=$3
 ERROR=""
 
-TMPKEY=$(/usr/bin/mktemp "/tmp/tmpkey.XXXXXXXX")
+TMPKEY=$(/bin/mktemp "/tmp/tmpkey.XXXXXXXX")
 
 function cleanup
 {
   ## Try to roll back on an error
   if [ -z "${ERROR}" -a -n "${THEUSER}" ]; then
-    /usr/bin/getent passwd "${THEUSER}" >"/dev/null" && /sbin/userdel -r -f "${THEUSER}"
+    /usr/bin/getent passwd "${THEUSER}" >"/dev/null" && /usr/sbin/deluser "${THEUSER}"
   fi
 
   if [ -n "${TMPKEY}" -a -f "${TMPKEY}" ]; then
@@ -28,7 +28,10 @@ function cleanup
   fi
 }
 
-if [ -z "$1" -o -z "$2" -o "$3" ]; then
+if [ "$#" -ne 3 ]; then
+  if [ -z "$1" ]; then echo "Error: Missing Username"; fi
+  if [ -z "$2" ]; then echo "Error: Missing Public Key Type"; fi
+  if [ -z "$3" ]; then echo "Error: Missing Public Key"; fi
   exit 1
 fi
 
@@ -60,11 +63,8 @@ if [ -e "/home/${THEUSER}" ]; then
 fi
 
 ## Create the user
-/sbin/useradd -G "users" -m "${THEUSER}" -s "/bin/bash"
-
-## Make the authorized keys bit
-/bin/mkdir -m 700 "/home/${THEUSER}/.ssh"
-/bin/chown "${THEUSER}:users" "/home/${THEUSER}/.ssh"
+echo "Creating User: ${THEUSER}"
+/usr/sbin/useradd -G "users" -m "${THEUSER}" -s "/bin/bash"
 
 ## Move the key into the users ssh authorized keys. Note move is important to prevent a race.
 /bin/chown "${THEUSER}:users" "${TMPKEY}"
