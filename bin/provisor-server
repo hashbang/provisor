@@ -14,8 +14,9 @@ api = Api(app)
 
 # SSH Public Key Validator
 def pubkey(value):
+    value = value.split( ' ' )
     try:
-        base64.decodestring(bytes(value,'utf8'))
+        base64.decodestring(bytes(value[1],'utf8'))
     except TypeError:
         raise ValueError("Public Key Is Invalid")
     except:
