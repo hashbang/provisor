@@ -81,8 +81,14 @@ class UserCreate(Resource):
             )
         except TimeoutExpired:
             return {'message': 'User creation script timed out'}
-        except CalledProcessError:
-            return {'message': 'User creation script failed'}
+        except CalledProcessError as e:
+            if e.returncode == 1:
+                return {'message': 'User creation script failed'}
+            elif e.returncode == 2:
+                return {'message': 'Username error/already taken'}
+            elif e.returncode == 3:
+                return {'message': 'Invalid key provided!'}
+
        
         return {'message': 'success'}
 

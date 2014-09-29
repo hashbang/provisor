@@ -36,7 +36,7 @@ fi
 ## Validate the given username
 if ! [[ ${THEUSER} =~ ^[a-zA-Z0-9_]{4,48}$ ]]; then
   echo "Invalid username" >&2
-  exit 1
+  exit 2
 fi
 
 ## Dump the key file somewhere safe
@@ -44,7 +44,7 @@ echo "${KEYTEXT}" >"${TMPKEY}"
 
 if [[ "${KEYTEXT:0:7}" != "ssh-rsa" || "${KEYTEXT:0:7}" != "ssh-dsa" ]]; then
 	echo "Invalid key!" >&2
-	exit 1
+	exit 3
 fi
 
 ssh-keygen -l -f "${TMKKEY}"
