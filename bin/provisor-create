@@ -42,6 +42,11 @@ fi
 ## Dump the key file somewhere safe
 echo "${KEYTEXT}" >"${TMPKEY}"
 
+if [[ "${KEYTEXT:0:7}" != "ssh-rsa" || "${KEYTEXT:0:7}" != "ssh-dsa" ]]; then
+	echo "Invalid key!" >&2
+	exit 1
+fi
+
 ssh-keygen -l -f "${TMKKEY}"
 
 if [ $? -ne 0 ]; then
