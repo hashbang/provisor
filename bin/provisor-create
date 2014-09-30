@@ -27,6 +27,9 @@ function cleanup
   fi
 }
 
+exec 200>"/dev/shm/make_user.flock"
+flock -x 200
+
 if [ "$#" -ne 2 ]; then
   if [ -z "$1" ]; then echo "Error: Missing Username"; fi
   if [ -z "$2" ]; then echo "Error: Missing Public Key"; fi
