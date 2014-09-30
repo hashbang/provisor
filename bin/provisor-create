@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+exec 200>"/dev/shm/make_user.flock"
+flock -x 200
+
 trap cleanup EXIT
 
 # Maybe flocking this script will help prevent some racing
@@ -26,9 +29,6 @@ function cleanup
     rm -f "${TMPKEY}"
   fi
 }
-
-exec 200>"/dev/shm/make_user.flock"
-flock -x 200
 
 if [ "$#" -ne 2 ]; then
   if [ -z "$1" ]; then echo "Error: Missing Username"; fi
