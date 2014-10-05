@@ -26,10 +26,7 @@ def pubkey(value):
     except:
         raise ValueError('Public Key Is Invalid')
 
-    # They key MUST have quotes around it when passed to a shell script, otherwise
-    # we'll get three parameters, and the shell script will have to validate
-    # and assemble the key itself.
-    return "\""+value[1]+value[2]+"\""
+    return "%s %s" % (value[0],value[1])
 
 # Username validator
 def username(value):
@@ -94,7 +91,7 @@ class UserCreate(Resource):
             elif e.returncode == 2:
                 return {'message': 'Username error/already taken'}
             elif e.returncode == 3:
-                return {'message': 'Invalid key provided!'}
+                return {'message': 'Key type must be ssh-dsa or ssh-rsa.'}
 
        
         return {'message': 'success'}

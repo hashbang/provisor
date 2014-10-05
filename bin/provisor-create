@@ -15,6 +15,7 @@ trap cleanup EXIT
 THEUSER=$1
 KEYTEXT=$2
 ERROR=""
+echo ${KEYTEXT}
 
 TMPKEY=$(/bin/mktemp "/tmp/tmpkey.XXXXXXXX")
 
@@ -45,12 +46,12 @@ fi
 ## Dump the key file somewhere safe
 echo "${KEYTEXT}" >"${TMPKEY}"
 
-if [[ "${KEYTEXT:0:7}" != "ssh-rsa" || "${KEYTEXT:0:7}" != "ssh-dsa" ]]; then
-	echo "Invalid key!" >&2
+if [[ "${KEYTEXT:0:7}" != "ssh-rsa" && "${KEYTEXT:0:7}" != "ssh-dsa" ]]; then
+	echo "Key type must be ssh-rsa or ssh-dsa" >&2
 	exit 3
 fi
 
-ssh-keygen -l -f "${TMKKEY}"
+ssh-keygen -l -f "${TMPKEY}"
 
 if [ $? -ne 0 ]; then
 	echo "Invalid key!" >&2
