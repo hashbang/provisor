@@ -5,7 +5,7 @@ Wants=nginx.service
 
 [Service]
 ExecStart=/usr/bin/python3 bin/provisor-server
-WorkingDirectory=/var/www/html/new.hashbang.sh
+WorkingDirectory=/opt/git/provisor
 Restart=on-failure
 User=provisor
 
