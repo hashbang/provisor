@@ -72,10 +72,10 @@ echo "Creating User: ${THEUSER}"
 ## Move the key into the users ssh authorized keys. Note move is important to prevent a race.
 /bin/chown "${THEUSER}:users" "${TMPKEY}"
 /bin/chmod "600" "${TMPKEY}" 
-/bin/mv "${TMPKEY}" "/home/${THEUSER}/.ssh/authorized_keys"
+/bin/cp --preserve=mode,ownership "/home/${THEUSER}/.ssh/authorized_keys"
 
 ## Set the users quota.
-/usr/sbin/setquota -u "${THEUSER}" "976563" "1220703" "0" "0" -a "/dev/vda1"
+/usr/sbin/setquota -u "${THEUSER}" "976563" "1220703" "0" "0" -a "/dev/vg0/lv2"
 
 ERROR="no"
 exit 0
