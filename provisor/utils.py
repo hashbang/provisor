@@ -1,5 +1,8 @@
 import re
 import os
+import sys
+import tty
+import termios
 
 def make_salt():
   salt = ""
@@ -9,6 +12,15 @@ def make_salt():
       salt += c
   return salt
 
+def getch():
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ch
 
 def validate_pubkey(value):
     # Value CANNOT include quotes, so we MAKE SURE there are no quotes around it yet.
