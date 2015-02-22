@@ -23,17 +23,19 @@ def getch():
     return ch
 
 def validate_pubkey(value):
-    # Value CANNOT include quotes, so we MAKE SURE there are no quotes around it yet.
+    if len(value) > 8192 or len(value) < 192:
+      raise ValueError("Public Key is Invalid")
+      
     value = value.replace( "\"", "" ).replace( "'", "" ).replace("\\\"", "" )
     value = value.split( ' ' )
-    if value[0] != "ssh-rsa" and value[0] != "ssh-dsa":
-        raise ValueError( "Public Key Is Invalid" )
+    if value[0] not in ('ssh-rsa','ssh-dsa','ssh-ecdsa'):
+        raise ValueError( "Public Key is Invalid" )
     try:
         base64.decodestring(bytes(value[1],'utf8'))
     except TypeError:
-        raise ValueError("Public Key Is Invalid")
+        raise ValueError("Public Key is Invalid")
     except:
-        raise ValueError('Public Key Is Invalid')
+        raise ValueError('Public Key is Invalid')
 
     return "%s %s" % (value[0],value[1])
 
