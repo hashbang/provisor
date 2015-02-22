@@ -157,13 +157,17 @@ class Provisor(object):
   def modify_user(self, username, pubkey=None,
                   shell=None, homedir=None, password=None,
                   uid=None, gid=None, lastchange=None, 
-                  nextchange=None, warning=None):
+                  nextchange=None, warning=None, raw_passwd=None,
+                  hostname=None):
     old = self.con.search_s("uid={0},{1}".format(username, USER_BASE), ldap.SCOPE_BASE, '(objectClass=*)', ("*",), 0)
     old = old[0][1]
     new = copy.deepcopy(old)
 
     if 'shadowAccount' not in new['objectClass']:
       new['objectClass'].append('shadowAccount')
+
+    if 'inetLocalMailRecipient' not in new['objectClass']:
+      new['objectClass'].append('inetLocalMailRecipient')
 
     if pubkey:
       if 'sshPublicKey' in new:
@@ -189,6 +193,17 @@ class Provisor(object):
       if 'shadowLastChange' in new:
         del(new['shadowLastChange'])
       new['shadowLastChange'] = [ str(int(time.time() / 86400)) ]
+
+    if raw_passwd:
+      password = '{crypt}' + raw_passwd 
+      if 'userPassword' in new:
+        del(new['userPassword'])
+      new['userPassword'] = [ str(password) ]
+
+      if 'shadowLastChange' in new:
+        del(new['shadowLastChange'])
+      new['shadowLastChange'] = [ str(int(time.time() / 86400)) ]
+
       
     if lastchange:
       if 'shadowLastChange' in new:
@@ -211,16 +226,27 @@ class Provisor(object):
     if 'shadowExpire' not in new:
       new['shadowExpire'] = [ '99999']
 
+    if hostname:
+      if 'host' in new:
+        del(new['host'])
+      new['host'] = str(hostname)
+      if 'mailRoutingAddress' in new:
+        del(new['mailRoutingAddress'])
+      new['mailRoutingAddress'] = [ '{0}@hashbang.sh'.format(username) ]
+      if 'mailHost' in new:
+        del(new['mailHost'])
+      new['mailHost'] = [ 'smtp:{0}'.format(hostname) ]
+
     ml = ldap.modlist.modifyModlist(old, new)
     self.con.modify_s("uid={0},{1}".format(username, USER_BASE), ml)
 
 
 
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
-  def add_user(self, username, pubkey,
+  def add_user(self, username, pubkey, hostname,
                 shell=DEFAULT_SHELL, homedir=None, password=None,
                 uid=-1, gid=-1,
-                lastchange=-1, nextchange=99999, warning=7):
+                lastchange=-1, nextchange=99999, warning=7, raw_passwd=None):
 
     if not homedir:
       homedir="/home/{0}".format(username)
@@ -235,11 +261,13 @@ class Provisor(object):
 
     if password == None:
       password = '{crypt}!'
+    elif raw_passwd:
+      password = '{crypt}' + raw_passwd
     else:
       password = '{crypt}' + crypt.crypt(password, "$6${0}".format(make_salt()))
 
     ml = {
-      'objectClass': [ 'account', 'posixAccount', 'top' ,'shadowAccount', 'ldapPublicKey' ],
+      'objectClass': [ 'account', 'posixAccount', 'top' ,'shadowAccount', 'ldapPublicKey', 'inetLocalMailRecipient' ],
       'uid' : [ username ],
       'cn' : [ username],
       'uidNumber' : [ str(uid) ],
@@ -253,6 +281,9 @@ class Provisor(object):
       'shadowExpire' : [ str(99999) ],
       'userPassword' : [ str(password) ],
       'sshPublicKey' : [ str(pubkey) ],
+      'host' : [ str(hostname) ],
+      'mailRoutingAddress' : [ '{0}@hashbang.sh'.format(username) ],
+      'mailHost' : [ str('smtp:'+hostname) ],
     }
 
     ml = ldap.modlist.addModlist(ml)
