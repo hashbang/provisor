@@ -69,8 +69,8 @@ int main(
       printf("%s", buf);
       memset(buf, 0, sizeof(buf));
     }
+    fclose(keys);
   }
-  fclose(keys);
 
   closelog();
   if (execl(SSS_KEYS, SSS_KEYS_NAME, argv[1], NULL) < 0) {
