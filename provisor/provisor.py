@@ -24,7 +24,7 @@ GROUP_BASE = config.get('ldap','group-base')
 DEFAULT_SHELL = config.get('provisor','default-shell')
 MIN_UID = config.get('provisor','min-uid')
 MAX_UID = config.get('provisor','max-uid')
-EXCLUDED_UIDS = [e.strip() for e in parser.get('provisor', 'excluded-udis').split(',')]
+EXCLUDED_UIDS = [e.strip() for e in config.get('provisor', 'excluded-uids').split(',')]
 
 class Provisor(object):
   def __init__(self):
