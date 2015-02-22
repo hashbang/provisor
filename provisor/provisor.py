@@ -6,23 +6,32 @@ import crypt
 import os
 import re
 from utils import make_salt
+from ConfigParser import ConfigParser
 
-LDAP_URI="ldap://ldap.hashbang.sh"
-LDAP_USER="cn=provisor,ou=Admin,dc=hashbang,dc=sh"
-USER_BASE="ou=People,dc=hashbang,dc=sh"
-GROUP_BASE="ou=Group,dc=hashbang,dc=sh"
+config = ConfigParser()
 
-DEFAULT_SHELL = "/bin/bash"
-MIN_UID = 3000
-MAX_UID = 1000000
-EXCLUDED_UIDS = (65534,)
+config.read([
+  '/etc/provisor.ini',
+  os.path.expanduser('~/.provisor.ini')
+])
+
+LDAP_URI = config.get('ldap','uri')
+LDAP_USER = config.get('ldap','user')
+LDAP_PASSWORD = config.get('ldap','password')
+USER_BASE = config.get('ldap','user-base')
+GROUP_BASE = config.get('ldap','group-base')
+
+DEFAULT_SHELL = config.get('provisor','default-shell')
+MIN_UID = config.get('provisor','min-uid')
+MAX_UID = config.get('provisor','max-uid')
+EXCLUDED_UIDS = [e.strip() for e in parser.get('provisor', 'excluded-udis').split(',')]
 
 class Provisor(object):
-  def __init__(self, passwd):
+  def __init__(self):
     self.con = ldap.initialize(LDAP_URI)
     self.con.set_option(ldap.OPT_X_TLS_DEMAND, True)
     self.con.start_tls_s()
-    self.con.simple_bind_s(LDAP_USER, passwd)
+    self.con.simple_bind_s(LDAP_USER, LDAP_PASSWORD)
 
   """ Does not work, dont know why """
   def whoami(self):
