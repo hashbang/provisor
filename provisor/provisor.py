@@ -5,6 +5,7 @@ import time
 import crypt
 import os
 import re
+from utils import make_salt
 
 LDAP_URI="ldap://ldap.hashbang.sh"
 LDAP_USER="cn=provisor,ou=Admin,dc=hashbang,dc=sh"
@@ -15,16 +16,6 @@ DEFAULT_SHELL = "/bin/bash"
 MIN_UID = 3000
 MAX_UID = 1000000
 EXCLUDED_UIDS = (65534,)
-
-def make_salt():
-  salt = ""
-  while len(salt) < 8:
-    c = os.urandom(1)
-    if re.match('[a-zA-Z0-9./]', c):
-      salt += c
-  return salt
-
-
 
 class Provisor(object):
   def __init__(self, passwd):
@@ -115,7 +106,6 @@ class Provisor(object):
     self.con.delete_s("cn={0},{1}".format(groupname, GROUP_BASE))
 
 
-
   def is_group_member(self, group, user):
     try:
       if self.con.compare_s("cn={0},{1}".format(group, GROUP_BASE), "memberUid", user) == 1:
@@ -150,7 +140,6 @@ class Provisor(object):
     new['memberUid'].remove(user)
     ml = ldap.modlist.modifyModlist(old, new)
     self.con.modify_s("cn={0},{1}".format(group, GROUP_BASE), ml)
-
 
 
   """ Attempt to modify a users entry """
@@ -204,7 +193,6 @@ class Provisor(object):
         del(new['shadowLastChange'])
       new['shadowLastChange'] = [ str(int(time.time() / 86400)) ]
 
-      
     if lastchange:
       if 'shadowLastChange' in new:
         del(new['shadowLastChange'])
@@ -239,7 +227,6 @@ class Provisor(object):
 
     ml = ldap.modlist.modifyModlist(old, new)
     self.con.modify_s("uid={0},{1}".format(username, USER_BASE), ml)
-
 
 
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
@@ -296,26 +283,3 @@ class Provisor(object):
 
   def __del__(self):
     self.con.unbind_s()
-
-
-
-#c = Provisor("the_provisor_ldap_password")
-#print c.whoami()
-#print c.list_users()
-#print c.list_groups()
-#print c.user_exists("deleriux")
-#print c.user_exists("nothing")
-#print c.next_uid()
-#c.add_group("somegroup", c.next_gid())
-#c.del_group("somegroup")
-#print c.is_group_member("sudo", "deleriux")
-#print c.is_group_member("sudo", "bobby")
-#print c.list_group_members("sudo")
-#c.add_group_member("sudo", "deleriux")
-#c.add_group_member("sudo", "jimmeh")
-#c.add_group_member("sudo", "lrvick")
-#c.del_group_member("sudo", "jimmeh")
-#c.add_user("deleriux2", "abc123", password="someuserpassword")
-#c.del_user("deleriux2")
-#c.modify_user("deleriux", pubkey="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC2d7b7gu6v86gGp4zYzPX+ZhCbrPuFqSzRNXqWH+YZ9BOwlg5z1Dh61hSxqL/FhIsg3Y8w3Wc5/wUlBevW2hFmea2T4CkDetYAZuKHM2rUdCn7GufdSDPzhCkDPFPtILPp1wa18SC4DHGeFcPl3J8k/BDQOiIxnaY4e1mVk/2dHxUjTmXKMby6IfhsdCgSK5Vub+m/P1EKYT8pL2OeA1byzb0xKtLu7ALKTlnmgzEjo2bi5h4Pfreuu+0sQxlb9l65CH+oF4PHZKG13a8OVuz6nudMXBuNrqdLWAJgbvQ7QeZ0clcSsZEV7I8IYFKvhg+V/BihxCSnSaDYlYOWx0nHqrG2z7ERGnXRu1h11+TlmrtA3U0ws1XPCzO6F6Y0orEOzijW1lTQSBv3ec9T3YbK58zCYn9eDMHyAqXhpVx6nZkM01+f93UYBO5QwzMmIoX5KSt1ZfEDvpFjrZE7d3EZu+f4U/ETAN58NPvubL7Zqqsxn+5P11+opQDa7CnVH7bRs04MkIYjO7ofYMKDBx7VGmGjh0/3WNUBfNXahKIS+vq6yUYzZ/eJg7ONvG+4Q6exg6NFxV1GO9DB+RDp1aJcaMhaQ8z6oMhHixX2LMlbrRSWs8EypG+jgcfIZxImp8ODVC9D4t2Ec3AI10STaU9qNKnxQShtie108w+jD0J0Sw== matthew@home.localdomain")
-#del(c)

@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+from provisor import Provisor
+
+

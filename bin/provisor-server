@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import re
 import os
 import base64
 import pwd
@@ -8,52 +7,11 @@ from subprocess import check_call, CalledProcessError, TimeoutExpired
 from flask import Flask
 from flask.ext.restful import Resource, Api
 from flask.ext.restful.reqparse import RequestParser
+from provisor.utils import validate_pubkey as pubkey
+from provisor.utils import validate_username as username
 
 app = Flask(__name__)
 api = Api(app)
-
-# SSH Public Key Validator
-def pubkey(value):
-    # Value CANNOT include quotes, so we MAKE SURE there are no quotes around it yet.
-    value = value.replace( "\"", "" ).replace( "'", "" ).replace("\\\"", "" )
-    value = value.split( ' ' )
-    if value[0] != "ssh-rsa" and value[0] != "ssh-dsa":
-        raise ValueError( "Public Key Is Invalid" )
-    try:
-        base64.decodestring(bytes(value[1],'utf8'))
-    except TypeError:
-        raise ValueError("Public Key Is Invalid")
-    except:
-        raise ValueError('Public Key Is Invalid')
-
-    return "%s %s" % (value[0],value[1])
-
-# Username validator
-def username(value):
-    reserved_usernames = [
-        'about','abuse','main','data','example','jabber','legal','invite',
-        'copyright','contact','board','feedback','support','anonymous','index',
-        'inbox','payment','donate','calendar','dotfiles','billing','billings',
-        'images','media','policy','manage','messages','mobile','official',
-        'staging','development','staff','portal','forum','forums','pictures',
-        'photos','status','finger','private','press','user','users','username',
-        'usernames','sitemap','team','teams','account','accounts','chat','mail',
-        'email','admin','admins','administrator','administrators','postmaster',
-        'hostmaster','webmaster'
-    ] 
-    if re.compile(r"^[a-zA-Z0-9_]{4,31}$").match(value) is None:
-        raise ValueError('Username is invalid')
-    if value in reserved_usernames:
-        raise ValueError('Username is reserved')
-    user_exists = True
-    try:
-        pwd.getpwnam(value)
-    except:
-        user_exists = False
-    if user_exists:
-        raise ValueError('Username already exists')
-    return value
-
 
 class UserCreate(Resource):
     def __init__(self):
