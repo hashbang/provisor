@@ -20,6 +20,7 @@ LDAP_USER = config.get('ldap','user')
 LDAP_PASSWORD = config.get('ldap','password')
 USER_BASE = config.get('ldap','user-base')
 GROUP_BASE = config.get('ldap','group-base')
+CACERTFILE = config.get('ldap','ca-certfile')
 
 DEFAULT_SHELL = config.get('provisor','default-shell')
 MIN_UID = config.get('provisor','min-uid')
@@ -28,6 +29,7 @@ EXCLUDED_UIDS = [e.strip() for e in config.get('provisor', 'excluded-uids').spli
 
 class Provisor(object):
   def __init__(self):
+    ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,CACERTFILE)
     self.con = ldap.initialize(LDAP_URI)
     self.con.set_option(ldap.OPT_X_TLS_DEMAND, True)
     self.con.start_tls_s()
