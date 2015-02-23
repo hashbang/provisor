@@ -31,7 +31,7 @@ def main_menu():
     print("  Name  : %s" % user['name'])
     print("  Email : %s" % user['email'])
     print("  Shell : %s" % user['shell'])
-    print("  SSH Keys:")
+    print("  SSH Public Keys:")
     for key in user['pubkeys']:
         print(textwrap.fill(
             "%s. %s" % (user['pubkeys'].index(key),key),
@@ -89,16 +89,19 @@ while True:
             user['pubkeys'].append(pubkey)
                 
     if key == '5':
-        print('\nPress the number of the key you wish to delete')
-        print('\nPress [Enter] To return to Main Menu')
+        if (len(user['pubkeys']) == 0):
+            print('\nThere are no SSH Public Keys to delete')
+            break;
+        print('Press the number of the key you wish to delete')
+        sys.stdout.write('\n> ')
         delkey = getch()
-        print('delkey',delkey)
         if delkey == '\r': # <Enter>
             main_menu()
         if int(delkey) >= 0 and int(delkey) <= len(user['pubkeys']):
+            print(delkey)
             del user['pubkeys'][int(delkey)]
             print('\nKey Deleted: %s' % delkey)
-            print('\nPress [Enter] To return to Main Menu')
+            main_menu()
 
     if key == '6':
         break;
