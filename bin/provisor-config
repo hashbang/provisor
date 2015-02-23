@@ -1,41 +1,52 @@
 #!/usr/bin/python
 
 import os
+import sys
+import textwrap
 from provisor import Provisor
 from provisor.utils import getch, validate_pubkey
 
-if os.geteuid() != 0 or not os.environ.get('SUDO_USER'):
+SUDO_USER = os.environ.get('SUDO_USER')
+
+if not SUDO_USER:
     exit("This script is designed to be run with sudo")
 
-# temp mock user
+p = Provisor()
+
+ldap_user = p.get_user(SUDO_USER)
+
 user = {
-    'name': 'John Doe',
-    'shell': '/bin/bash',
-    'login': os.environ.get('SUDO_USER') or os.environ.get('USER'),
-    'email': 'user@example.com',
-    'pubkeys': {'comment1':'somekey1','comment2':'somekey2'}
+    'name': ldap_user.setdefault('commonName',['Unknown'])[0],
+    'login': ldap_user['uid'][0],
+    'shell': ldap_user['loginShell'][0],
+    'host': ldap_user['host'][0],
+    'email': ldap_user['mailRoutingAddress'][0],
+    'pubkeys': ldap_user['sshPublicKey'],
 }
 
-key = 0
-
 def main_menu():
-    print('')
-    print("User Details:")
-    print("Login: %s" % user['login'])
-    print("Name: %s" % user['name'])
-    print("Email: %s" % user['email'])
-    print("Shell: %s" % user['shell'])
-    print("SSH Keys: %s" % ",".join(user['pubkeys'].keys()))
-    print('')
-    print("Actions:")
-    print("1 - Change Name")
-    print("2 - Change Email")
-    print("3 - Change Shell")
-    print("4 - View SSH Public Keys")
-    print("5 - Add SSH Public Keys")
-    print("6 - Delete SSH Public Key")
-    print("7 - Exit")
-    print('')
+    print("\nUser Details:\n")
+    print("  Login : %s" % user['login'])
+    print("  Host  : %s" % user['host'])
+    print("  Name  : %s" % user['name'])
+    print("  Email : %s" % user['email'])
+    print("  Shell : %s" % user['shell'])
+    print("  SSH Keys:")
+    for key in user['pubkeys']:
+        print(textwrap.fill(
+            "%s. %s" % (user['pubkeys'].index(key),key),
+            width=74,
+            initial_indent='    ',
+            subsequent_indent='       '
+        ))
+    print("\nActions:\n")
+    print("  1 - Change Name")
+    print("  2 - Change Email")
+    print("  3 - Change Shell")
+    print("  4 - Add SSH Public Key")
+    print("  5 - Delete SSH Public Key")
+    print("  6 - Exit\n")
+    sys.stdout.write('> ')
  
 main_menu()
 
@@ -48,6 +59,9 @@ while True:
 
     if key == '\r': # <Enter>
         main_menu()
+
+    if int(key) >= 1 and int(key) <=6:
+        print("%s\n" % key)
 
     if key == '1':
         user['name'] = raw_input("Enter new name: ")
@@ -62,15 +76,7 @@ while True:
         main_menu()
 
     if key == '4':
-        for comment,pubkey in user['pubkeys'].iteritems():
-            print('Comment: %s' % comment)
-            print('Text: %s' % pubkey)
-            print('')
-        print('Press [Enter] To Continue')
-    
-    if key == '5':
         pubkey = raw_input("Paste SSH Public Key to be added:\n")
-        print('pubkey',pubkey)
         valid_pubkey = False;
         try:
             validate_pubkey(pubkey)
@@ -80,35 +86,19 @@ while True:
 
         if valid_pubkey:
             print('\nPublic Key accepted.')
-            while True:
-                comment = raw_input("\nPlease supply a comment for this key:\n")
-                if not user['pubkeys'][comment]:
-                    user['pubkeys'][comment] = pubkey
-                else:
-                    print("This comment is in use on another key")
+            user['pubkeys'].append(pubkey)
                 
-    if key == '6':
-        keynum = 0
-        delkeys = []
-        for comment,pubkey in user['pubkeys'].iteritems():
-            delkeys.append(comment)
-            print('%s - %s' % (keynum,comment))
-            keynum = keynum + 1
-
-        print('')
-        print('Press the number of the key you wish to delete')
-        print('')
-        print('Press [Enter] To return to Main Menu')
+    if key == '5':
+        print('\nPress the number of the key you wish to delete')
+        print('\nPress [Enter] To return to Main Menu')
         delkey = getch()
         print('delkey',delkey)
-        if key == '\r': # <Enter>
+        if delkey == '\r': # <Enter>
             main_menu()
-        if int(delkey) >= 0 and int(delkey) <= keynum:
-            print delkeys[int(delkey)]
-            del user['pubkeys'][delkeys[int(delkey)]]
-            print('Key Deleted: %s' % delkeys[int(delkey)])
-            print('')
-            print('Press [Enter] To return to Main Menu')
+        if int(delkey) >= 0 and int(delkey) <= len(user['pubkeys']):
+            del user['pubkeys'][int(delkey)]
+            print('\nKey Deleted: %s' % delkey)
+            print('\nPress [Enter] To return to Main Menu')
 
-    if key == '7':
+    if key == '6':
         break;

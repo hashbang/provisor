@@ -159,8 +159,7 @@ class Provisor(object):
                   uid=None, gid=None, lastchange=None, 
                   nextchange=None, warning=None, raw_passwd=None,
                   hostname=None):
-    old = self.con.search_s("uid={0},{1}".format(username, USER_BASE), ldap.SCOPE_BASE, '(objectClass=*)', ("*",), 0)
-    old = old[0][1]
+    old = get_user(username)
     new = copy.deepcopy(old)
 
     if 'shadowAccount' not in new['objectClass']:
@@ -239,6 +238,12 @@ class Provisor(object):
     ml = ldap.modlist.modifyModlist(old, new)
     self.con.modify_s("uid={0},{1}".format(username, USER_BASE), ml)
 
+  """ Get User details """
+  def get_user(self,username):
+    user = self.con.search_s("uid={0},{1}".format(username, USER_BASE),
+            ldap.SCOPE_BASE, '(objectClass=*)', ("*",), 0)[0][1]
+    return user
+    
 
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
   def add_user(self, username, pubkey, hostname,
