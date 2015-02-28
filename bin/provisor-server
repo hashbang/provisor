@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
 import os
-import base64
-import pwd
 from subprocess import check_call, CalledProcessError, TimeoutExpired
 from flask import Flask
 from flask.ext.restful import Resource, Api

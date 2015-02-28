@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import tty
+import base64
 import termios
 
 def make_salt():
@@ -24,18 +25,16 @@ def getch():
 
 def validate_pubkey(value):
     if len(value) > 8192 or len(value) < 192:
-      raise ValueError("Public Key is Invalid")
+      raise ValueError("Expected length to be between 192 and 8192 characters")
       
-    value = value.replace( "\"", "" ).replace( "'", "" ).replace("\\\"", "" )
-    value = value.split( ' ' )
+    value = value.replace("\"", "").replace("'", "").replace("\\\"", "")
+    value = value.split(' ')
     if value[0] not in ('ssh-rsa','ssh-dsa','ssh-ecdsa'):
-        raise ValueError( "Public Key is Invalid" )
+        raise ValueError("Expected 'ssh-rsa', 'ssh-dsa', or 'ssh-ecdsa'")
     try:
-        base64.decodestring(bytes(value[1],'utf8'))
-    except TypeError:
-        raise ValueError("Public Key is Invalid")
+        base64.decodestring(bytes(value[1]))
     except:
-        raise ValueError('Public Key is Invalid')
+        raise ValueError("Expected string of base64 encoded data")
 
     return "%s %s" % (value[0],value[1])
 

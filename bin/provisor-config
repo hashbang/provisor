@@ -15,18 +15,29 @@ p = Provisor()
 
 ldap_user = p.get_user(SUDO_USER)
 
+print ldap_user
+
 user = {
     'name': ldap_user.setdefault('commonName',['Unknown'])[0],
     'login': ldap_user['uid'][0],
+    'uid': ldap_user['uidNumber'][0],
     'shell': ldap_user['loginShell'][0],
     'host': ldap_user['host'][0],
     'email': ldap_user['mailRoutingAddress'][0],
     'pubkeys': ldap_user['sshPublicKey'],
 }
 
+def ldap_sync():
+    p.modify_user(
+        SUDO_USER,
+        pubkeys = user['pubkeys'],
+        shell = user['shell'],
+    ) 
+
 def main_menu():
-    print("\nUser Details:\n")
+    print("\nLDAP User Details:\n")
     print("  Login : %s" % user['login'])
+    print("  UID   : %s" % user['uid'])
     print("  Host  : %s" % user['host'])
     print("  Name  : %s" % user['name'])
     print("  Email : %s" % user['email'])
@@ -47,61 +58,76 @@ def main_menu():
     print("  5 - Delete SSH Public Key")
     print("  6 - Exit\n")
     sys.stdout.write('> ')
- 
+
 main_menu()
 
 while True:
  
     key = getch()
 
+    if ord(key) >= 49 and ord(key) <=54: # 0-6
+        print("%s\n" % key)
+
     if ord(key) == 3: # <Ctrl+C>
         break;
 
-    if key == '\r': # <Enter>
+    elif key == '\r': # <Enter>
         main_menu()
 
-    if int(key) >= 1 and int(key) <=6:
-        print("%s\n" % key)
-
-    if key == '1':
+    elif key == '1':
         user['name'] = raw_input("Enter new name: ")
         main_menu()
 
-    if key == '2':
+    elif key == '2':
         user['email'] = raw_input("Enter new Email: ")
         main_menu()
 
-    if key == '3':
-        user['shell'] = raw_input("Enter new shell, eg /bin/bash:")
-        main_menu()
+    elif key == '3':
+        shell = raw_input("Enter new shell, eg /bin/bash:")
 
-    if key == '4':
+        if shell not in ['/bin/bash','/bin/zsh','/bin/ksh','/bin/fish']:
+            print('Error: \n"%s" is not an available shell' % shell)
+        else:
+            user['shell'] = shell
+            ldap_sync()
+            print('\nShell Updated.')
+
+        print('\nPlease press [Enter] to continue')
+
+    elif key == '4':
         pubkey = raw_input("Paste SSH Public Key to be added:\n")
         valid_pubkey = False;
         try:
             validate_pubkey(pubkey)
             valid_pubkey = True
-        except:
-            print('\nSupplied Public Key is invalid.')
+        except Exception, e:
+            print("\nError: %s" % e)
 
-        if valid_pubkey:
-            print('\nPublic Key accepted.')
+        if pubkey in user['pubkeys']:
+            print('\nPublic Key already exists.')
+
+        elif valid_pubkey:
             user['pubkeys'].append(pubkey)
+            ldap_sync()
+            print('\nPublic Keys updated.')
+
+        print('\nPlease press [Enter] to continue')
                 
-    if key == '5':
+    elif key == '5':
         if (len(user['pubkeys']) == 0):
             print('\nThere are no SSH Public Keys to delete')
             break;
         print('Press the number of the key you wish to delete')
         sys.stdout.write('\n> ')
         delkey = getch()
-        if delkey == '\r': # <Enter>
-            main_menu()
         if int(delkey) >= 0 and int(delkey) <= len(user['pubkeys']):
             print(delkey)
             del user['pubkeys'][int(delkey)]
             print('\nKey Deleted: %s' % delkey)
-            main_menu()
+        else:
+            print('\nInvalid key number specified')
 
-    if key == '6':
+        print('\nPlease press [Enter] to continue')
+
+    elif key == '6':
         break;

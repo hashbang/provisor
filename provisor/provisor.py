@@ -154,12 +154,12 @@ class Provisor(object):
 
 
   """ Attempt to modify a users entry """
-  def modify_user(self, username, pubkey=None,
+  def modify_user(self, username, pubkeys=None,
                   shell=None, homedir=None, password=None,
                   uid=None, gid=None, lastchange=None, 
                   nextchange=None, warning=None, raw_passwd=None,
                   hostname=None):
-    old = get_user(username)
+    old = self.get_user(username)
     new = copy.deepcopy(old)
 
     if 'shadowAccount' not in new['objectClass']:
@@ -168,10 +168,10 @@ class Provisor(object):
     if 'inetLocalMailRecipient' not in new['objectClass']:
       new['objectClass'].append('inetLocalMailRecipient')
 
-    if pubkey:
+    if pubkeys:
       if 'sshPublicKey' in new:
         del(new['sshPublicKey'])
-      new['sshPublicKey'] = [ str(pubkey) ]
+      new['sshPublicKey'] = pubkeys
 
     if shell:
       if 'loginShell' in new:
