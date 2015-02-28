@@ -15,8 +15,6 @@ p = Provisor()
 
 ldap_user = p.get_user(SUDO_USER)
 
-print ldap_user
-
 user = {
     'name': ldap_user.setdefault('commonName',['Unknown'])[0],
     'login': ldap_user['uid'][0],
