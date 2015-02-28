@@ -50,11 +50,10 @@ def main_menu():
         ))
     print("\nActions:\n")
     print("  1 - Change Name")
-    print("  2 - Change Email")
-    print("  3 - Change Shell")
-    print("  4 - Add SSH Public Key")
-    print("  5 - Delete SSH Public Key")
-    print("  6 - Exit\n")
+    print("  2 - Change Shell")
+    print("  3 - Add SSH Public Key")
+    print("  4 - Delete SSH Public Key")
+    print("  5 - Exit\n")
     sys.stdout.write('> ')
 
 main_menu()
@@ -77,10 +76,6 @@ while True:
         main_menu()
 
     elif key == '2':
-        user['email'] = raw_input("Enter new Email: ")
-        main_menu()
-
-    elif key == '3':
         shell = raw_input("Enter new shell, eg /bin/bash:")
 
         if shell not in ['/bin/bash','/bin/zsh','/bin/ksh','/bin/fish']:
@@ -92,7 +87,7 @@ while True:
 
         print('\nPlease press [Enter] to continue')
 
-    elif key == '4':
+    elif key == '3':
         pubkey = raw_input("Paste SSH Public Key to be added:\n")
         valid_pubkey = False;
         try:
@@ -111,7 +106,7 @@ while True:
 
         print('\nPlease press [Enter] to continue')
                 
-    elif key == '5':
+    elif key == '4':
         if (len(user['pubkeys']) == 0):
             print('\nThere are no SSH Public Keys to delete')
             break;
@@ -127,5 +122,5 @@ while True:
 
         print('\nPlease press [Enter] to continue')
 
-    elif key == '6':
+    elif key == '5':
         break;
