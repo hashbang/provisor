@@ -109,18 +109,22 @@ while True:
     elif key == '4':
         if (len(user['pubkeys']) == 0):
             print('\nThere are no SSH Public Keys to delete')
-            break;
-        print('Press the number of the key you wish to delete')
-        sys.stdout.write('\n> ')
-        delkey = getch()
-        if int(delkey) >= 0 and int(delkey) <= len(user['pubkeys']):
-            print(delkey)
-            del user['pubkeys'][int(delkey)]
-            print('\nKey Deleted: %s' % delkey)
         else:
-            print('\nInvalid key number specified')
+            print('Press the number of the key you wish to delete')
+            print('(Or Press ESC to Cancel)')
+            sys.stdout.write('\n> ')
+            delkey = getch()
+            if ord(delkey) == 27: #Esc
+                main_menu()
+            elif ord(delkey) >= ord('0') and ord(delkey) <= ord(str(len(user['pubkeys']))):
+                print(delkey)
+                del user['pubkeys'][int(delkey)]
+                ldap_sync()
+                print('\nKey Deleted: %s' % delkey)
+            else:
+                print('\nInvalid key number specified')
 
-        print('\nPlease press [Enter] to continue')
+            print('\nPlease press [Enter] to continue')
 
     elif key == '5':
         break;
