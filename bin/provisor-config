@@ -25,13 +25,14 @@ user = {
     'pubkeys': ldap_user['sshPublicKey'],
 }
 
-def ldap_sync():
-    p.modify_user(
-        SUDO_USER,
-        pubkeys = user['pubkeys'],
-        shell = user['shell'],
-        name = user['name'],
-    ) 
+menu_items = [
+    ('n',"Change Name"),
+    ('s',"Change Shell"),
+    ('a',"Add SSH Public Key"),
+    ('d',"Delete SSH Public Key"),
+    ('q',"Exit\n"),
+]
+
 
 def main_menu():
     print("\nLDAP User Details:\n")
@@ -50,12 +51,18 @@ def main_menu():
             subsequent_indent='       '
         ))
     print("\nActions:\n")
-    print("  1 - Change Name")
-    print("  2 - Change Shell")
-    print("  3 - Add SSH Public Key")
-    print("  4 - Delete SSH Public Key")
-    print("  5 - Exit\n")
+    for key,desc in menu_items:
+        print("  %s - %s" % (key,desc))
     sys.stdout.write('> ')
+
+
+def ldap_sync():
+    p.modify_user(
+        SUDO_USER,
+        pubkeys = user['pubkeys'],
+        shell = user['shell'],
+        name = user['name'],
+    ) 
 
 main_menu()
 
@@ -63,7 +70,7 @@ while True:
  
     key = getch()
 
-    if ord(key) >= 49 and ord(key) <=54: # 0-6
+    if key in [ key for k,v in menu_items ]:
         print("%s\n" % key)
 
     if ord(key) == 3: # <Ctrl+C>
@@ -72,13 +79,13 @@ while True:
     elif key == '\r': # <Enter>
         main_menu()
 
-    elif key == '1':
+    elif key == 'n':
         user['name'] = raw_input("Enter new name: ")
         ldap_sync();
         print('\nName Updated.')
         print('\nPlease press [Enter] to continue')
 
-    elif key == '2':
+    elif key == 's':
         shell = raw_input("Enter new shell, eg /bin/bash:")
 
         if shell not in ['/bin/bash','/bin/zsh','/bin/ksh','/bin/fish']:
@@ -90,7 +97,7 @@ while True:
 
         print('\nPlease press [Enter] to continue')
 
-    elif key == '3':
+    elif key == 'a':
         pubkey = raw_input("Paste SSH Public Key to be added:\n")
         valid_pubkey = False;
         try:
@@ -109,7 +116,7 @@ while True:
 
         print('\nPlease press [Enter] to continue')
                 
-    elif key == '4':
+    elif key == 'd':
         if (len(user['pubkeys']) == 0):
             print('\nThere are no SSH Public Keys to delete')
         else:
@@ -129,5 +136,5 @@ while True:
 
             print('\nPlease press [Enter] to continue')
 
-    elif key == '5':
+    elif key == 'q':
         break;
