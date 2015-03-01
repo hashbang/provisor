@@ -30,7 +30,7 @@ menu_items = [
     ('s',"Change Shell"),
     ('a',"Add SSH Public Key"),
     ('d',"Delete SSH Public Key"),
-    ('q',"Exit\n"),
+    ('q',"Quit\n"),
 ]
 
 
