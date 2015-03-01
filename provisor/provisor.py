@@ -5,7 +5,7 @@ import time
 import crypt
 import os
 import re
-from utils import make_salt
+from utils import make_salt, drop_privileges
 from ConfigParser import ConfigParser
 
 config = ConfigParser()
@@ -14,6 +14,8 @@ config.read([
   '/etc/provisor.ini',
   os.path.expanduser('~/.provisor.ini')
 ])
+
+drop_privileges()
 
 LDAP_URI = config.get('ldap','uri')
 LDAP_USER = config.get('ldap','user')
