@@ -160,7 +160,7 @@ class Provisor(object):
                   shell=None, homedir=None, password=None,
                   uid=None, gid=None, lastchange=None, 
                   nextchange=None, warning=None, raw_passwd=None,
-                  hostname=None):
+                  hostname=None, name=None):
     old = self.get_user(username)
     new = copy.deepcopy(old)
 
@@ -179,6 +179,11 @@ class Provisor(object):
       if 'loginShell' in new:
         del(new['loginShell'])
       new['loginShell'] = [ str(shell) ]
+
+    if name:
+      if 'cn' in new:
+        del(new['cn'])
+      new['cn'] = [ str(name) ]
 
     if homedir:
       if 'homeDirectory' in new:
