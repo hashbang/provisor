@@ -7,6 +7,7 @@ import termios
 import os
 import pwd
 import grp
+import resource
 
 def make_salt():
   salt = ""
@@ -28,6 +29,7 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
     os.setgid(running_gid)
     os.setuid(running_uid)
     os.umask(077)
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 
 def getch():
     fd = sys.stdin.fileno()
