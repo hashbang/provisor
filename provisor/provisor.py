@@ -6,36 +6,32 @@ import crypt
 import os
 import re
 from utils import make_salt, drop_privileges
-from ConfigParser import ConfigParser
-
-config = ConfigParser()
-
-config.read([
-  '/etc/provisor.ini',
-  os.path.expanduser('~/.provisor.ini')
-])
-
-drop_privileges()
-
-LDAP_URI = config.get('ldap','uri')
-LDAP_USER = config.get('ldap','user')
-LDAP_PASSWORD = config.get('ldap','password')
-USER_BASE = config.get('ldap','user-base')
-GROUP_BASE = config.get('ldap','group-base')
-CACERTFILE = config.get('ldap','ca-certfile')
-
-DEFAULT_SHELL = config.get('provisor','default-shell')
-MIN_UID = config.get('provisor','min-uid')
-MAX_UID = config.get('provisor','max-uid')
-EXCLUDED_UIDS = [e.strip() for e in config.get('provisor', 'excluded-uids').split(',')]
 
 class Provisor(object):
-  def __init__(self):
-    ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,CACERTFILE)
-    self.con = ldap.initialize(LDAP_URI)
+
+  def __init__(self, **kwargs):
+    prop_defaults = {
+        "uri": None,
+        "user": None,
+        "password": None,
+        "user_base": None,
+        "group_base": None,
+        "ca_certfile": "/etc/ssl/certs/ca-certificates.crt",
+        "default_shell": "/bin/bash",
+        "min_uid": 3000,
+        "max_uid": 1000000,
+        "excluded_uids": [65534]
+    }
+
+    for (prop, default) in prop_defaults.iteritems():
+        setattr(self, prop, kwargs.get(prop, default))
+
+    ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,self.ca_certfile)
+    self.con = ldap.initialize(self.uri)
     self.con.set_option(ldap.OPT_X_TLS_DEMAND, True)
     self.con.start_tls_s()
-    self.con.simple_bind_s(LDAP_USER, LDAP_PASSWORD)
+    print(self.uri,self.user, self.password)
+    self.con.simple_bind_s(self.user, self.password)
 
   """ Does not work, dont know why """
   def whoami(self):
@@ -43,7 +39,7 @@ class Provisor(object):
 
   def list_users(self):
     users = []
-    results = self.con.search_s(USER_BASE, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("uid",), 0)
+    results = self.con.search_s(self.user_base, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("uid",), 0)
     for r in results:
       for attrs in r[1]:
         users.append(r[1][attrs][0])
@@ -51,7 +47,7 @@ class Provisor(object):
 
   def list_groups(self):
     groups = []
-    results = self.con.search_s(GROUP_BASE, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("cn",), 0)
+    results = self.con.search_s(self.group_base, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("cn",), 0)
     for r in results:
       for attrs in r[1]:
         groups.append(r[1][attrs][0])
@@ -59,7 +55,7 @@ class Provisor(object):
 
   def group_exists(self, group):
     try:
-      if self.con.compare_s("cn={0},{1}".format(group, GROUP_BASE), "cn", group) == 1:
+      if self.con.compare_s("cn={0},{1}".format(group, self.group_base), "cn", group) == 1:
         return True
       else:
         return False
@@ -68,7 +64,7 @@ class Provisor(object):
 
   def user_exists(self, user):
     try:
-      if self.con.compare_s("uid={0},{1}".format(user, USER_BASE), "uid", user) == 1:
+      if self.con.compare_s("uid={0},{1}".format(user, self.user_base), "uid", user) == 1:
         return True
       else:
         return False
@@ -83,21 +79,21 @@ class Provisor(object):
       for attrs in r[1]:
         uids.append(int(r[1][attrs][0]))
     uids.sort()
-    for u in range(MIN_UID,MAX_UID,1):
-      if u in uids or u in EXCLUDED_UIDS:
+    for u in range(self.min_uid,self.max_uid,1):
+      if u in uids or u in self.excluded_uids:
         continue
       return u
 
   """ Returns the next gid for use """
   def next_gid(self):
     gids = []
-    results = self.con.search_s(GROUP_BASE, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("gidNumber",), 0)
+    results = self.con.search_s(self.group_base, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("gidNumber",), 0)
     for r in results:
       for attrs in r[1]:
         gids.append(int(r[1][attrs][0]))
     gids.sort()
-    for g in range(MIN_UID,MAX_UID,1):
-      if g in gids or g in EXCLUDED_UIDS:
+    for g in range(self.min_uid,self.max_uid,1):
+      if g in gids or g in self.excluded_uids:
         continue
       return g
 
@@ -112,16 +108,16 @@ class Provisor(object):
      'gidNumber': [ str(gid) ],
     }
     ml = ldap.modlist.addModlist(ml)
-    self.con.add_s("cn={0},{1}".format(groupname, GROUP_BASE), ml)
+    self.con.add_s("cn={0},{1}".format(groupname, self.group_base), ml)
 
 
   def del_group(self, groupname):
-    self.con.delete_s("cn={0},{1}".format(groupname, GROUP_BASE))
+    self.con.delete_s("cn={0},{1}".format(groupname, self.group_base))
 
 
   def is_group_member(self, group, user):
     try:
-      if self.con.compare_s("cn={0},{1}".format(group, GROUP_BASE), "memberUid", user) == 1:
+      if self.con.compare_s("cn={0},{1}".format(group, self.group_base), "memberUid", user) == 1:
         return True
       else:
         return False
@@ -131,7 +127,7 @@ class Provisor(object):
 
   def list_group_members(self, group):
     members = []
-    results = self.con.search_s("cn={0},{1}".format(group,GROUP_BASE), 
+    results = self.con.search_s("cn={0},{1}".format(group,self.group_base), 
                                       ldap.SCOPE_BASE, '(objectClass=*)', ("memberUid",), 0)
     for r in results:
       for attrs in r[1]:
@@ -143,16 +139,16 @@ class Provisor(object):
   def add_group_member(self, group, user):
     ml = { 'memberUid': [ user ] }
     ml = ldap.modlist.modifyModlist({}, ml, ignore_oldexistent=1)
-    self.con.modify_s("cn={0},{1}".format(group, GROUP_BASE), ml)
+    self.con.modify_s("cn={0},{1}".format(group, self.group_base), ml)
 
 
   def del_group_member(self, group, user):
-    old = self.con.search_s("cn={0},{1}".format(group, GROUP_BASE), ldap.SCOPE_BASE, '(objectClass=*)', ("memberUid",), 0)
+    old = self.con.search_s("cn={0},{1}".format(group, self.group_base), ldap.SCOPE_BASE, '(objectClass=*)', ("memberUid",), 0)
     old = old[0][1]
     new = copy.deepcopy(old)
     new['memberUid'].remove(user)
     ml = ldap.modlist.modifyModlist(old, new)
-    self.con.modify_s("cn={0},{1}".format(group, GROUP_BASE), ml)
+    self.con.modify_s("cn={0},{1}".format(group, self.group_base), ml)
 
 
   """ Attempt to modify a users entry """
@@ -243,18 +239,18 @@ class Provisor(object):
       new['mailHost'] = [ 'smtp:{0}'.format(hostname) ]
 
     ml = ldap.modlist.modifyModlist(old, new)
-    self.con.modify_s("uid={0},{1}".format(username, USER_BASE), ml)
+    self.con.modify_s("uid={0},{1}".format(username, self.user_base), ml)
 
   """ Get User details """
   def get_user(self,username):
-    user = self.con.search_s("uid={0},{1}".format(username, USER_BASE),
+    user = self.con.search_s("uid={0},{1}".format(username, self.user_base),
             ldap.SCOPE_BASE, '(objectClass=*)', ("*",), 0)[0][1]
     return user
     
 
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
   def add_user(self, username, pubkey, hostname,
-                shell=DEFAULT_SHELL, homedir=None, password=None,
+                shell=None, homedir=None, password=None,
                 uid=-1, gid=-1,
                 lastchange=-1, nextchange=99999, warning=7, raw_passwd=None):
 
@@ -282,7 +278,7 @@ class Provisor(object):
       'cn' : [ username],
       'uidNumber' : [ str(uid) ],
       'gidNumber' : [ str(gid) ],
-      'loginShell' : [ DEFAULT_SHELL ],
+      'loginShell' : [ shell or default_shell ],
       'homeDirectory' : [ homedir ],
       'shadowLastChange' : [ str(lastchange) ],
       'shadowMax' : [ str(nextchange) ],
@@ -297,11 +293,11 @@ class Provisor(object):
     }
 
     ml = ldap.modlist.addModlist(ml)
-    self.con.add_s("uid={0},{1}".format(username, USER_BASE), ml)
+    self.con.add_s("uid={0},{1}".format(username, self.user_base), ml)
 
 
   def del_user(self, username):
-    self.con.delete_s("uid={0},{1}".format(username, USER_BASE))
+    self.con.delete_s("uid={0},{1}".format(username, self.user_base))
 
 
   def __del__(self):
