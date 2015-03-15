@@ -30,7 +30,6 @@ class Provisor(object):
     self.con = ldap.initialize(self.uri)
     self.con.set_option(ldap.OPT_X_TLS_DEMAND, True)
     self.con.start_tls_s()
-    print(self.uri,self.user, self.password)
     self.con.simple_bind_s(self.user, self.password)
 
   """ Does not work, dont know why """
@@ -74,7 +73,7 @@ class Provisor(object):
   """ Returns the next uid for use """
   def next_uid(self):
     uids = []
-    results = self.con.search_s(USER_BASE, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("uidNumber",), 0)
+    results = self.con.search_s(self.user_base, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("uidNumber",), 0)
     for r in results:
       for attrs in r[1]:
         uids.append(int(r[1][attrs][0]))
@@ -127,7 +126,7 @@ class Provisor(object):
 
   def list_group_members(self, group):
     members = []
-    results = self.con.search_s("cn={0},{1}".format(group,self.group_base), 
+    results = self.con.search_s("cn={0},{1}".format(group,self.group_base),
                                       ldap.SCOPE_BASE, '(objectClass=*)', ("memberUid",), 0)
     for r in results:
       for attrs in r[1]:
@@ -154,7 +153,7 @@ class Provisor(object):
   """ Attempt to modify a users entry """
   def modify_user(self, username, pubkeys=None,
                   shell=None, homedir=None, password=None,
-                  uid=None, gid=None, lastchange=None, 
+                  uid=None, gid=None, lastchange=None,
                   nextchange=None, warning=None, raw_passwd=None,
                   hostname=None, name=None):
     old = self.get_user(username)
@@ -197,7 +196,7 @@ class Provisor(object):
       new['shadowLastChange'] = [ str(int(time.time() / 86400)) ]
 
     if raw_passwd:
-      password = '{crypt}' + raw_passwd 
+      password = '{crypt}' + raw_passwd
       if 'userPassword' in new:
         del(new['userPassword'])
       new['userPassword'] = [ str(password) ]
@@ -246,7 +245,7 @@ class Provisor(object):
     user = self.con.search_s("uid={0},{1}".format(username, self.user_base),
             ldap.SCOPE_BASE, '(objectClass=*)', ("*",), 0)[0][1]
     return user
-    
+
 
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
   def add_user(self, username, pubkey, hostname,
