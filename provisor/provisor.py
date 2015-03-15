@@ -277,7 +277,7 @@ class Provisor(object):
       'cn' : [ username],
       'uidNumber' : [ str(uid) ],
       'gidNumber' : [ str(gid) ],
-      'loginShell' : [ shell or default_shell ],
+      'loginShell' : [ shell or self.default_shell ],
       'homeDirectory' : [ homedir ],
       'shadowLastChange' : [ str(lastchange) ],
       'shadowMax' : [ str(nextchange) ],
