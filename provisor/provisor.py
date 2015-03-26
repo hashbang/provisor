@@ -28,6 +28,11 @@ class Provisor(object):
 
     ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,self.ca_certfile)
     self.con = ldap.initialize(self.uri)
+    self.con = ldap.ldapobject.ReconnectLDAPObject(
+        self.uri,
+        retry_max=10,
+        retry_delay=5
+    )
     self.con.set_option(ldap.OPT_X_TLS_DEMAND, True)
     self.con.start_tls_s()
     self.con.simple_bind_s(self.user, self.password)
