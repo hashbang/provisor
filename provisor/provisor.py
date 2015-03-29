@@ -16,6 +16,7 @@ class Provisor(object):
         "password": None,
         "user_base": None,
         "group_base": None,
+        "servers_base": None,
         "ca_certfile": "/etc/ssl/certs/ca-certificates.crt",
         "default_shell": "/bin/bash",
         "min_uid": 3000,
@@ -48,6 +49,22 @@ class Provisor(object):
       for attrs in r[1]:
         users.append(r[1][attrs][0])
     return tuple(users)
+
+  def server_stats(self):
+    stats = {}
+    user_results = self.con.search_s(
+      self.user_base,
+      ldap.SCOPE_ONELEVEL,
+      '(objectClass=*)',
+      ("host",),
+      0
+    )
+    for r in user_results:
+      for attrs in r[1]:
+        host = r[1][attrs][0]
+        stats[host] = stats.get(host, 1) + 1
+
+    return stats
 
   def list_groups(self):
     groups = []
