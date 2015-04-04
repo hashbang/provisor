@@ -42,8 +42,8 @@ def getch():
     return ch
 
 def validate_pubkey(value):
-    if len(value) > 8192:
-      raise ValueError("Length may not exceed 8192 characters")
+    if len(value) > 8192 or len(value) < 80:
+      raise ValueError("Expected length to be between 80 and 8192 characters")
       
     value = value.replace("\"", "").replace("'", "").replace("\\\"", "")
     value = value.split(' ')
