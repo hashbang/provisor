@@ -69,7 +69,7 @@ def validate_username(value):
         'email','admin','admins','administrator','administrators','postmaster',
         'hostmaster','webmaster'
     ] 
-    if re.compile(r"^[a-zA-Z0-9_]{4,31}$").match(value) is None:
+    if re.compile(r"^[a-zA-Z][a-zA-Z0-9_]{,30}$").match(value) is None:
         raise ValueError('Username is invalid')
     if value in reserved_usernames:
         raise ValueError('Username is reserved')
