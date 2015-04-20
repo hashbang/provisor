@@ -42,13 +42,15 @@ def getch():
     return ch
 
 def validate_pubkey(value):
-    if len(value) > 8192 or len(value) < 192:
-      raise ValueError("Expected length to be between 192 and 8192 characters")
+    if len(value) > 8192 or len(value) < 80:
+      raise ValueError("Expected length to be between 80 and 8192 characters")
       
     value = value.replace("\"", "").replace("'", "").replace("\\\"", "")
     value = value.split(' ')
-    if value[0] not in ('ssh-rsa','ssh-dsa','ssh-ecdsa'):
-        raise ValueError("Expected 'ssh-rsa', 'ssh-dsa', or 'ssh-ecdsa'")
+    if value[0] not in ('ssh-rsa','ssh-dss','ecdsa-sha2-nistp256',
+            'ecdsa-sha2-nistp384','ecdsa-sha2-nistp521','ssh-ed25519'):
+        raise ValueError("Expected 'ssh-rsa', 'ssh-dss', 'ecdsa-sha2-nistp256',"
+            " 'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521', or 'ssh-ed25519'")
     try:
         base64.decodestring(bytes(value[1]))
     except:
@@ -69,7 +71,7 @@ def validate_username(value):
         'email','admin','admins','administrator','administrators','postmaster',
         'hostmaster','webmaster'
     ] 
-    if re.compile(r"^[a-zA-Z0-9_]{4,31}$").match(value) is None:
+    if re.compile(r"^[a-zA-Z][a-zA-Z0-9_]{,30}$").match(value) is None:
         raise ValueError('Username is invalid')
     if value in reserved_usernames:
         raise ValueError('Username is reserved')
