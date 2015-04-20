@@ -1,0 +1,14 @@
+dn: uid=lrvick,ou=People,dc=hashbang,dc=sh
+changetype: add
+uid: lrvick
+cn: lrvick
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: ldapPublicKey
+loginShell: /bin/bash
+uidNumber: 10190
+gidNumber: 10190
+host: va1.hashbang.sh
+homeDirectory: /home/lrvick
+sshPublicKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAE...nxQShtie108w+jD0J0Sw==

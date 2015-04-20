@@ -1,0 +1,5 @@
+dn: cn=va1.hashbang.sh,ou=Servers,dc=hashbang,dc=sh
+changetype: add
+maxUsers: 200
+l: Rackspace, Virginia, USA
+ipHostNumber: 162.242.243.13
