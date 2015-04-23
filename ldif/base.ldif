@@ -1,26 +1,3 @@
-dn: ou=schema
-changetype: modify
-add: attributetypes
-attributetypes: (  \
-    2.25.241091410154673509086302049160513570075.1 \
-    NAME 'maxUsers' \
-    DESC 'Maximum number of users for a device' \
-    EQUALITY integerMatch \
-    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 \
-    SINGLE-VALUED \
-)
-
-dn: ou=schema
-changetype: modify
-add: objectclasses
-objectclasses: ( \
-    2.25.241091410154673509086302049160513570075.2 \
-    NAME 'shellHost' \
-    DESC 'A host on the shell server network' \
-    SUP device \
-    AUXILIARY MUST ( cn $ maxUsers ) \
-)
-
 dn: ou=People,dc=hashbang,dc=sh
 changetype: add
 ou: People
@@ -38,7 +15,3 @@ changetype: add
 ou: Servers
 objectclass: top
 objectclass: organizationalUnit
-objectclass: device
-objectclass: ipHost
-objectclass: shellHost
-EOF
