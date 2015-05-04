@@ -1,17 +1,14 @@
 dn: ou=People,dc=hashbang,dc=sh
 changetype: add
-ou: People
 objectClass: top
 objectClass: organizationalUnit
 
 dn: ou=Group,dc=hashbang,dc=sh
 changetype: add
-ou: Group
 objectClass: top
 objectClass: organizationalUnit
 
 dn: ou=Servers,dc=hashbang,dc=sh
 changetype: add
-ou: Servers
 objectclass: top
 objectclass: organizationalUnit
