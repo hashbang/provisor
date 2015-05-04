@@ -11,7 +11,7 @@ objectClass: inetLocalMailRecipient
 uidNumber: 1001
 gidNumber: 1001
 loginShell: /bin/bash
-userPassword:: hUyughjJHj=
+userPassword:: c2RzZGYK
 host: va1.hashbang.sh
 mailHost: smtp:va1.hashbang.sh
 mailRoutingAddress: jdoe@hashbang.sh
