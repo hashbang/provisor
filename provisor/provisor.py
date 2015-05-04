@@ -52,6 +52,7 @@ class Provisor(object):
 
   def server_stats(self):
     stats = {}
+    server_list = self.list_servers()
     user_results = self.con.search_s(
       self.user_base,
       ldap.SCOPE_ONELEVEL,
@@ -62,9 +63,31 @@ class Provisor(object):
     for r in user_results:
       for attrs in r[1]:
         host = r[1][attrs][0]
-        stats[host] = stats.get(host, 1) + 1
+        stats[host] = stats.get(host,{})
+        stats[host]['currentUsers'] = stats[host].get('currentUsers', 0) + 1
+    for server in server_list:
+      stats[server['cn']] = stats.get(server['cn'],{})
+      stats[server['cn']]['location'] = server['l']
+      stats[server['cn']]['maxUsers'] = server['maxUsers']
+      stats[server['cn']]['ip'] = server['ipHostNumber']
+      stats[server['cn']]['currentUsers'] = stats[server['cn']].get('currentUsers', 0)
 
     return stats
+
+  def list_servers(self):
+    servers = []
+    results = self.con.search_s(
+        self.servers_base,
+        ldap.SCOPE_ONELEVEL,
+        '(objectClass=*)', ("cn","maxUsers","l","ipHostNumber"),
+        0
+    )
+    for r in results:
+        server = {}
+        for attr in r[1]:
+            server[attr] = r[1][attr][0]
+        servers.append(server)
+    return servers
 
   def list_groups(self):
     groups = []
