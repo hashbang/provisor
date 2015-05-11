@@ -5,11 +5,6 @@ setup(
     name='provisor',
     version='0.2',
     packages=['provisor'],
-    scripts=[ 
-        'bin/provisor-server',
-        'bin/provisor-create',
-        'bin/provisor-config'
-    ],
     data_files=[('/etc',['provisor.conf'])],
     author='Hashbang Team',
     author_email='team@hashbang.sh',
