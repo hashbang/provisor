@@ -70,7 +70,8 @@ class Provisor(object):
     for r in user_results:
       for attrs in r[1]:
         host = r[1][attrs][0]
-        stats[host]['currentUsers'] = stats[host].get('currentUsers', 0) + 1
+        if host in stats:
+            stats[host]['currentUsers'] = stats[host].get('currentUsers', 0) + 1
 
     return stats
 
