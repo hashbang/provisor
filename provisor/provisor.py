@@ -5,6 +5,7 @@ import time
 import crypt
 import os
 import re
+from collections import OrderedDict
 from utils import make_salt, drop_privileges
 
 class Provisor(object):
@@ -51,7 +52,7 @@ class Provisor(object):
     return tuple(users)
 
   def server_stats(self):
-    stats = {}
+    stats = OrderedDict()
     server_list = self.list_servers()
     user_results = self.con.search_s(
       self.user_base,
@@ -60,17 +61,16 @@ class Provisor(object):
       ("host",),
       0
     )
+    for server in server_list:
+      stats[server['cn']] = stats.get(server['cn'],OrderedDict())
+      stats[server['cn']]['ip'] = server['ipHostNumber']
+      stats[server['cn']]['location'] = server['l']
+      stats[server['cn']]['currentUsers'] = stats[server['cn']].get('currentUsers', 0)
+      stats[server['cn']]['maxUsers'] = server['maxUsers']
     for r in user_results:
       for attrs in r[1]:
         host = r[1][attrs][0]
-        stats[host] = stats.get(host,{})
         stats[host]['currentUsers'] = stats[host].get('currentUsers', 0) + 1
-    for server in server_list:
-      stats[server['cn']] = stats.get(server['cn'],{})
-      stats[server['cn']]['location'] = server['l']
-      stats[server['cn']]['maxUsers'] = server['maxUsers']
-      stats[server['cn']]['ip'] = server['ipHostNumber']
-      stats[server['cn']]['currentUsers'] = stats[server['cn']].get('currentUsers', 0)
 
     return stats
 
