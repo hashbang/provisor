@@ -44,13 +44,16 @@ def getch():
 def validate_pubkey(value):
     if len(value) > 8192 or len(value) < 80:
       raise ValueError("Expected length to be between 80 and 8192 characters")
-      
+
     value = value.replace("\"", "").replace("'", "").replace("\\\"", "")
     value = value.split(' ')
-    if value[0] not in ('ssh-rsa','ssh-dss','ecdsa-sha2-nistp256',
-            'ecdsa-sha2-nistp384','ecdsa-sha2-nistp521','ssh-ed25519'):
-        raise ValueError("Expected 'ssh-rsa', 'ssh-dss', 'ecdsa-sha2-nistp256',"
-            " 'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521', or 'ssh-ed25519'")
+    types = [ 'ssh-rsa','ssh-dss','ecdsa-sha2-nistp256',
+              'ecdsa-sha2-nistp384','ecdsa-sha2-nistp521','ssh-ed25519' ]
+    if value[0] not in types:
+        raise ValueError(
+          "Expected " + ', '.join(types[:-1]) + ', or ' + types[-1]
+        )
+
     try:
         base64.decodestring(bytes(value[1]))
     except:
