@@ -73,7 +73,7 @@ def validate_username(value):
         'usernames','sitemap','team','teams','account','accounts','chat','mail',
         'email','admin','admins','administrator','administrators','postmaster',
         'hostmaster','webmaster'
-    ] 
+    ]
     if re.compile(r"^[a-zA-Z][a-zA-Z0-9_]{,30}$").match(value) is None:
         raise ValueError('Username is invalid')
     if value in reserved_usernames:
