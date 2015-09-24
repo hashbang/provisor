@@ -73,7 +73,10 @@ def validate_username(value):
         'usernames','sitemap','team','teams','account','accounts','chat','mail',
         'email','admin','admins','administrator','administrators','postmaster',
         'hostmaster','webmaster'
-    ] 
+    ]
+
+    # Regexp must be kept in sync with
+    #  https://github.com/hashbang/hashbang.sh/blob/master/src/hashbang.sh#L178-191
     if re.compile(r"^[a-z][a-z0-9]{,30}$").match(value) is None:
         raise ValueError('Username is invalid')
     if value in reserved_usernames:
