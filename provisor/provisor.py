@@ -7,6 +7,7 @@ import os
 import re
 from collections import OrderedDict
 from utils import make_salt, drop_privileges
+from random import shuffle
 
 class Provisor(object):
 
@@ -73,6 +74,7 @@ class Provisor(object):
         if host in stats:
             stats[host]['currentUsers'] = stats[host].get('currentUsers', 0) + 1
 
+    shuffle(stats)
     return stats
 
   def list_servers(self):
