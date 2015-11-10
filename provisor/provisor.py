@@ -74,7 +74,6 @@ class Provisor(object):
         if host in stats:
             stats[host]['currentUsers'] = stats[host].get('currentUsers', 0) + 1
 
-    shuffle(stats)
     return stats
 
   def list_servers(self):
@@ -90,6 +89,7 @@ class Provisor(object):
         for attr in r[1]:
             server[attr] = r[1][attr][0]
         servers.append(server)
+    shuffle(servers)
     return servers
 
   def list_groups(self):
