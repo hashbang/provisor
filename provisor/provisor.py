@@ -9,6 +9,11 @@ from collections import OrderedDict
 from utils import make_salt, drop_privileges
 from random import shuffle
 
+# An exception class for erroring-out
+#  on unknown hosts
+class UNKNOWN_HOST(Exception):
+  pass
+
 class Provisor(object):
 
   def __init__(self, **kwargs):
@@ -275,6 +280,8 @@ class Provisor(object):
       new['shadowExpire'] = [ '99999']
 
     if hostname:
+      if hostname not in self.list_servers():
+        raise UNKNOWN_HOST(hostname)
       if 'host' in new:
         del(new['host'])
       new['host'] = str(hostname)
