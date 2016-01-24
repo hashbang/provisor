@@ -59,7 +59,7 @@ class Provisor(object):
 
   def server_stats(self):
     stats = OrderedDict()
-    server_list = self.list_servers()
+    server_list = self.servers()
     user_results = self.con.search_s(
       self.user_base,
       ldap.SCOPE_ONELEVEL,
@@ -81,7 +81,7 @@ class Provisor(object):
 
     return stats
 
-  def list_servers(self):
+  def servers(self):
     servers = []
     results = self.con.search_s(
         self.servers_base,
@@ -96,6 +96,9 @@ class Provisor(object):
         servers.append(server)
     shuffle(servers)
     return servers
+
+  def list_servers(self):
+    map(lambda x: x['cn'], self.servers())
 
   def list_groups(self):
     groups = []
@@ -280,7 +283,7 @@ class Provisor(object):
       new['shadowExpire'] = [ '99999']
 
     if hostname:
-      if hostname not in map(lambda x: x['cn'], self.list_servers()):
+      if hostname not in self.list_servers():
         raise UNKNOWN_HOST(hostname)
       if 'host' in new:
         del(new['host'])
@@ -310,6 +313,9 @@ class Provisor(object):
 
     if not homedir:
       homedir="/home/{0}".format(username)
+
+    if hostname not in self.list_servers():
+      raise UNKNOWN_HOST(hostname)
 
     if uid < 0:
       uid = self.next_uid()
