@@ -280,7 +280,7 @@ class Provisor(object):
       new['shadowExpire'] = [ '99999']
 
     if hostname:
-      if hostname not in self.list_servers():
+      if hostname not in map(lambda x: x['cn'], self.list_servers()):
         raise UNKNOWN_HOST(hostname)
       if 'host' in new:
         del(new['host'])
