@@ -314,6 +314,9 @@ class Provisor(object):
     if not homedir:
       homedir="/home/{0}".format(username)
 
+    if hostname not in self.list_servers():
+      raise UNKNOWN_HOST(hostname)
+
     if uid < 0:
       uid = self.next_uid()
     if gid < 0:
