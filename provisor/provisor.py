@@ -6,6 +6,7 @@ import crypt
 import os
 import re
 from collections import OrderedDict
+from exceptions import Exception
 from utils import make_salt, drop_privileges
 from random import shuffle
 
