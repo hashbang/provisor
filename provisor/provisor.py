@@ -99,7 +99,7 @@ class Provisor(object):
     return servers
 
   def list_servers(self):
-    map(lambda x: x['cn'], self.servers())
+    return map(lambda x: x['cn'], self.servers())
 
   def list_groups(self):
     groups = []
