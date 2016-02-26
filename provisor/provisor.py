@@ -306,7 +306,8 @@ class Provisor(object):
     if uid == None:
       uid = self.next_uid()
     else:
-      assert(uid > self.min_uid)
+      assert(uid >= self.min_uid)
+      assert(uid <= self.max_uid)
 
     gid = uid
 
