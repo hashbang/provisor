@@ -140,23 +140,10 @@ class Provisor(object):
         continue
       return u
 
-  """ Returns the next gid for use """
-  def next_gid(self):
-    gids = []
-    results = self.con.search_s(self.group_base, ldap.SCOPE_ONELEVEL, '(objectClass=*)', ("gidNumber",), 0)
-    for r in results:
-      for attrs in r[1]:
-        gids.append(int(r[1][attrs][0]))
-    gids.sort()
-    for g in range(self.min_uid,self.max_uid,1):
-      if g in gids or g in self.excluded_uids:
-        continue
-      return g
 
-
-  def add_group(self, groupname, gid=-1):
-    if gid < 0:
-      self.next_gid()
+  def add_group(self, groupname, gid):
+    assert(gid >= self.min_uid)
+    assert(gid <= self.max_uid)
 
     ml = {
      'objectClass': [ 'top','posixGroup'],
@@ -210,9 +197,8 @@ class Provisor(object):
   """ Attempt to modify a users entry """
   def modify_user(self, username, pubkeys=None,
                   shell=None, homedir=None, password=None,
-                  uid=None, gid=None, lastchange=None,
-                  nextchange=None, warning=None, raw_passwd=None,
-                  hostname=None, name=None):
+                  lastchange=None, nextchange=None, warning=None,
+                  raw_passwd=None, hostname=None, name=None):
     old = self.get_user(username)
     new = copy.deepcopy(old)
 
@@ -309,8 +295,7 @@ class Provisor(object):
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
   def add_user(self, username, pubkey, hostname,
                 shell=None, homedir=None, password=None,
-                uid=-1, gid=-1,
-                lastchange=-1, nextchange=99999, warning=7, raw_passwd=None):
+                uid=None, lastchange=-1, nextchange=99999, warning=7, raw_passwd=None):
 
     if not homedir:
       homedir="/home/{0}".format(username)
@@ -318,10 +303,13 @@ class Provisor(object):
     if hostname not in self.list_servers():
       raise UNKNOWN_HOST(hostname)
 
-    if uid < 0:
+    if uid == None:
       uid = self.next_uid()
-    if gid < 0:
-      gid = self.next_gid()
+    else:
+      assert(uid >= self.min_uid)
+      assert(uid <= self.max_uid)
+
+    gid = uid
 
     if lastchange < 0:
       lastchange = int(time.time() / 86400)
@@ -355,6 +343,7 @@ class Provisor(object):
 
     ml = ldap.modlist.addModlist(ml)
     self.con.add_s("uid={0},{1}".format(username, self.user_base), ml)
+    self.add_group(username, gid)
 
 
   def del_user(self, username):
