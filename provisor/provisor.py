@@ -253,16 +253,6 @@ class Provisor(object):
         del(new['shadowLastChange'])
       new['shadowLastChange'] = [ str(int(time.time() / 86400)) ]
 
-    if uid:
-      if 'uidNumber' in new:
-        del(new['uidNumber'])
-      new['uidNumber'] = [ str(uid) ]
-
-    if gid:
-      if 'gidNumber' in new:
-        del(new['gidNumber'])
-      new['gidNumber'] = [ str(gid) ]
-
     if 'shadowInactive' not in new:
       new['shadowInactive'] = [ '99999' ]
 
