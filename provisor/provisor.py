@@ -3,11 +3,10 @@ import ldap
 import ldap.modlist
 import time
 import crypt
-import os
-import re
+
 from collections import OrderedDict
 from exceptions import Exception
-from utils import make_salt, drop_privileges
+from utils import make_salt
 from random import shuffle
 
 # An exception class for erroring-out

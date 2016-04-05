@@ -1,13 +1,14 @@
-import re
 import os
+import re
 import sys
 import tty
+
 import base64
-import termios
-import os
-import pwd
 import grp
+import pwd
 import resource
+import termios
+
 
 def make_salt():
   salt = ""
