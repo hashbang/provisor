@@ -1,13 +1,14 @@
-import re
 import os
+import re
 import sys
 import tty
+
 import base64
-import termios
-import os
-import pwd
 import grp
+import pwd
 import resource
+import termios
+
 
 def make_salt():
   salt = ""
@@ -17,9 +18,10 @@ def make_salt():
       salt += c
   return salt
 
+
 def drop_privileges(uid_name='nobody', gid_name='nogroup'):
 
-    if os.getuid() != 0: #not root. #yolo
+    if os.getuid() != 0:  # not root. #yolo
         return
 
     running_uid = pwd.getpwnam(uid_name).pw_uid
@@ -28,8 +30,9 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
     os.setgroups([])
     os.setgid(running_gid)
     os.setuid(running_uid)
-    os.umask(077)
+    os.umask(0o077)
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+
 
 def getch():
     fd = sys.stdin.fileno()
@@ -41,17 +44,18 @@ def getch():
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
 
+
 def validate_pubkey(value):
     if len(value) > 8192 or len(value) < 80:
       raise ValueError("Expected length to be between 80 and 8192 characters")
 
     value = value.replace("\"", "").replace("'", "").replace("\\\"", "")
     value = value.split(' ')
-    types = [ 'ssh-rsa','ssh-dss','ecdsa-sha2-nistp256',
-              'ecdsa-sha2-nistp384','ecdsa-sha2-nistp521','ssh-ed25519' ]
+    types = [ 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384',
+              'ecdsa-sha2-nistp521', 'ssh-rsa', 'ssh-dss', 'ssh-ed25519' ]
     if value[0] not in types:
         raise ValueError(
-          "Expected " + ', '.join(types[:-1]) + ', or ' + types[-1]
+            "Expected " + ', '.join(types[:-1]) + ', or ' + types[-1]
         )
 
     try:
@@ -59,20 +63,20 @@ def validate_pubkey(value):
     except:
         raise ValueError("Expected string of base64 encoded data")
 
-    return "%s %s" % (value[0],value[1])
+    return "%s %s" % (value[0], value[1])
 
 
 def validate_username(value):
     reserved_usernames = [
-        'about','abuse','main','data','example','jabber','legal','invite',
-        'copyright','contact','board','feedback','support','anonymous','index',
-        'inbox','payment','donate','calendar','dotfiles','billing','billings',
-        'images','media','policy','manage','messages','mobile','official',
-        'staging','development','staff','portal','forum','forums','pictures',
-        'photos','status','finger','private','press','user','users','username',
-        'usernames','sitemap','team','teams','account','accounts','chat','mail',
-        'email','admin','admins','administrator','administrators','postmaster',
-        'hostmaster','webmaster'
+        'about', 'abuse', 'main', 'data', 'example', 'jabber', 'legal', 'invite',
+        'copyright', 'contact', 'board', 'feedback', 'support', 'anonymous', 'index',
+        'inbox', 'payment', 'donate', 'calendar', 'dotfiles', 'billing', 'billings',
+        'images', 'media', 'policy', 'manage', 'messages', 'mobile', 'official',
+        'staging', 'development', 'staff', 'portal', 'forum', 'forums', 'pictures',
+        'photos', 'status', 'finger', 'private', 'press', 'user', 'users', 'username',
+        'usernames', 'sitemap', 'team', 'teams', 'account', 'accounts', 'chat', 'mail',
+        'email', 'admin', 'admins', 'administrator', 'administrators', 'postmaster',
+        'hostmaster', 'webmaster'
     ]
 
     # Regexp must be kept in sync with
