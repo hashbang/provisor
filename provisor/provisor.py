@@ -292,7 +292,7 @@ class Provisor(object):
     if hostname not in self.list_servers():
       raise UNKNOWN_HOST(hostname)
 
-    if uid == None:
+    if uid is None:
       uid = self.next_uid()
     else:
       assert(uid >= self.min_uid)
@@ -303,7 +303,7 @@ class Provisor(object):
     if lastchange < 0:
       lastchange = int(time.time() / 86400)
 
-    if password == None:
+    if password is None:
       password = '{crypt}!'
     elif raw_passwd:
       password = '{crypt}' + raw_passwd
