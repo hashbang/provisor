@@ -306,8 +306,12 @@ class Provisor(object):
       password = '{crypt}' + crypt.crypt(password, "$6${0}".format(make_salt()))
 
     ml = {
-        'objectClass': [ 'account', 'posixAccount', 'top', 'shadowAccount',
-                         'ldapPublicKey', 'inetLocalMailRecipient' ],
+        'objectClass': [ 'account',
+                         'inetLocalMailRecipient',
+                         'ldapPublicKey',
+                         'posixAccount',
+                         'shadowAccount',
+                         'top' ],
         'uid': [ username ],
         'cn': [ username],
         'uidNumber': [ str(uid) ],
