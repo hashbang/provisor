@@ -29,7 +29,7 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
     os.setgroups([])
     os.setgid(running_gid)
     os.setuid(running_uid)
-    os.umask(077)
+    os.umask(0o077)
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 
 def getch():
