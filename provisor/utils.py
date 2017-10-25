@@ -41,7 +41,7 @@ def validate_pubkey(value):
 
     try:
         base64.decodestring(bytes(value[1]))
-    except:
+    except TypeError:
         raise ValueError("Expected string of base64 encoded data")
 
     return "%s %s" % (value[0], value[1])
