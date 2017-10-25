@@ -70,7 +70,7 @@ def validate_username(value):
     from reserved import RESERVED_USERNAMES
 
     # Regexp must be kept in sync with
-    #  https://github.com/hashbang/hashbang.sh/blob/master/src/hashbang.sh#L178-191
+    #  https://github.com/hashbang/hashbang.sh/blob/master/src/hashbang.sh#L186-196
     if re.compile(r"^[a-z][a-z0-9]{,30}$").match(value) is None:
         raise ValueError('Username is invalid')
 
