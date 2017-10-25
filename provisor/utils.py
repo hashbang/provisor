@@ -73,9 +73,12 @@ def validate_username(value):
         'inbox', 'payment', 'donate', 'calendar', 'dotfiles', 'billing', 'billings',
         'images', 'media', 'policy', 'manage', 'messages', 'mobile', 'official',
         'staging', 'development', 'staff', 'portal', 'forum', 'forums', 'pictures',
-        'photos', 'status', 'finger', 'private', 'press', 'user', 'users', 'username',
-        'usernames', 'sitemap', 'teams', 'account', 'accounts', 'chat', 'mail',
+        'photos', 'status', 'private', 'press', 'user', 'users', 'username',
+        'usernames', 'sitemap', 'teams', 'account', 'accounts',
         'email', 'admin', 'admins', 'administrator', 'administrators',
+
+        # #! service names
+        'chat', 'finger', 'git', 'im', 'irc', 'ldap', 'mail', 'voip', 'www'
 
         # Non-RFC2142 email aliases
         'mailer-daemon', 'nobody', 'root', 'team'
