@@ -68,14 +68,15 @@ def validate_pubkey(value):
 
 def validate_username(value):
     reserved_usernames = [
-        'about', 'main', 'data', 'example', 'jabber', 'legal', 'invite',
-        'copyright', 'contact', 'board', 'feedback', 'anonymous', 'index',
-        'inbox', 'payment', 'donate', 'calendar', 'dotfiles', 'billing', 'billings',
-        'images', 'media', 'policy', 'manage', 'messages', 'mobile', 'official',
-        'staging', 'development', 'staff', 'portal', 'forum', 'forums', 'pictures',
-        'photos', 'status', 'private', 'press', 'user', 'users', 'username',
-        'usernames', 'sitemap', 'teams', 'account', 'accounts',
-        'email', 'admin', 'admins', 'administrator', 'administrators',
+        # Names that might be used for fishing
+        'about', 'account', 'accounts', 'admin', 'administrator',
+        'administrators', 'admins', 'anonymous', 'billing', 'billings', 'board',
+        'calendar', 'contact', 'copyright', 'data', 'development', 'donate',
+        'dotfiles', 'email', 'example', 'feedback', 'forum', 'forums', 'images',
+        'inbox', 'index', 'invite', 'jabber', 'legal', 'main', 'manage', 'media',
+        'messages', 'mobile', 'official', 'payment', 'photos', 'pictures',
+        'policy', 'portal', 'press', 'private', 'sitemap', 'staff', 'staging',
+        'status', 'teams', 'user', 'username', 'usernames', 'users',
 
         # #! service names
         'chat', 'finger', 'git', 'im', 'irc', 'ldap', 'mail', 'voip', 'www'
