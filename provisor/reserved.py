@@ -8,6 +8,13 @@ reserved_usernames = [
     'picture', 'policy', 'portal', 'press', 'private', 'sitemap', 'staff',
     'staging', 'status', 'user', 'username',
 
+    # Usernames reserved in Debian
+    'root', 'daemon', 'bin', 'sys', 'sync', 'games', 'man', 'lp',
+    'proxy', 'www-data', 'backup', 'list', 'irc', 'gnats', 'nobody',
+    'ntpd', 'statd', 'sshd', 'messagebus', 'unbound', 'postfix',
+    'postgres', 'nslcd', 'glances', 'oident', 'bitlbee', 'redis',
+    'epmd',
+
     # #! service names
     'chat', 'finger', 'git', 'im', 'irc', 'ldap', 'mail', 'voip', 'www'
 
