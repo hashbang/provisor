@@ -68,15 +68,25 @@ def validate_pubkey(value):
 
 def validate_username(value):
     reserved_usernames = [
-        'about', 'abuse', 'main', 'data', 'example', 'jabber', 'legal', 'invite',
-        'copyright', 'contact', 'board', 'feedback', 'support', 'anonymous', 'index',
+        'about', 'main', 'data', 'example', 'jabber', 'legal', 'invite',
+        'copyright', 'contact', 'board', 'feedback', 'anonymous', 'index',
         'inbox', 'payment', 'donate', 'calendar', 'dotfiles', 'billing', 'billings',
         'images', 'media', 'policy', 'manage', 'messages', 'mobile', 'official',
         'staging', 'development', 'staff', 'portal', 'forum', 'forums', 'pictures',
         'photos', 'status', 'finger', 'private', 'press', 'user', 'users', 'username',
         'usernames', 'sitemap', 'team', 'teams', 'account', 'accounts', 'chat', 'mail',
-        'email', 'admin', 'admins', 'administrator', 'administrators', 'postmaster',
-        'hostmaster', 'webmaster'
+        'email', 'admin', 'admins', 'administrator', 'administrators',
+
+        # RFC2142 mailbox names
+        ## Business related
+        'info', 'marketing', 'sales', 'support',
+
+        ## Network operations
+        'abuse', 'noc', 'security'
+
+        ## Support for specific services
+        'ftp', 'hostmaster', 'news', 'usenet',
+        'uucp', 'postmaster', 'webmaster', 'www'
     ]
 
     # Regexp must be kept in sync with
