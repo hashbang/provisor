@@ -10,15 +10,6 @@ import resource
 import termios
 
 
-def make_salt():
-  salt = ""
-  while len(salt) < 8:
-    c = os.urandom(1)
-    if re.match('[a-zA-Z0-9./]', c):
-      salt += c
-  return salt
-
-
 def drop_privileges(uid_name='nobody', gid_name='nogroup'):
 
     if os.getuid() != 0:  # not root. #yolo
