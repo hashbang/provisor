@@ -22,21 +22,20 @@ reserved_usernames = [
     'mailer-daemon', 'nobody', 'root', 'team'
 
     # RFC2142 mailbox names
-    ## Business related
+    #  Business related
     'info', 'marketing', 'sales', 'support',
 
-    ## Network operations
+    #  Network operations
     'abuse', 'noc', 'security'
 
-    ## Support for specific services
+    #  Support for specific services
     'ftp', 'hostmaster', 'news', 'usenet',
     'uucp', 'postmaster', 'webmaster', 'www'
 ]
 
-reserved_usernames += [ name + 's'
-                        for name in reserved_names
-                        if name[-1] != 's'
-]
+reserved_usernames += [name + 's'
+                       for name in reserved_names
+                       if name[-1] != 's']
 
 RESERVED_USERNAMES = frozenset(reserved_usernames)
 del reserved_usernames
