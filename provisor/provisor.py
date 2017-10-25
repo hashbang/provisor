@@ -2,11 +2,9 @@ import copy
 import ldap
 import ldap.modlist
 import time
-import crypt
 
 from collections import OrderedDict
 from exceptions import Exception
-from utils import make_salt
 from random import shuffle
 
 
@@ -191,7 +189,7 @@ class Provisor(object):
 
   """ Attempt to modify a users entry """
   def modify_user(self, username, pubkeys=None,
-                  shell=None, homedir=None, password=None,
+                  shell=None, homedir=None,
                   lastchange=None, nextchange=None, warning=None,
                   raw_passwd=None, hostname=None, name=None):
     old = self.get_user(username)
@@ -222,16 +220,6 @@ class Provisor(object):
       if 'homeDirectory' in new:
         del(new['homeDirectory'])
       new['homeDirectory'] = [ str(homedir) ]
-
-    if password:
-      password = '{crypt}' + crypt.crypt(password, "$6${0}".format(make_salt()))
-      if 'userPassword' in new:
-        del(new['userPassword'])
-      new['userPassword'] = [ str(password) ]
-
-      if 'shadowLastChange' in new:
-        del(new['shadowLastChange'])
-      new['shadowLastChange'] = [ str(int(time.time() / 86400)) ]
 
     if raw_passwd:
       password = '{crypt}' + raw_passwd
@@ -278,7 +266,7 @@ class Provisor(object):
 
   """ Adds a user, takes a number of optional defaults but the username and public key are required """
   def add_user(self, username, pubkey, hostname,
-               shell=None, homedir=None, password=None, uid=None,
+               shell=None, homedir=None, uid=None,
                lastchange=-1, nextchange=99999, warning=7, raw_passwd=None):
 
     if not homedir:
@@ -298,13 +286,6 @@ class Provisor(object):
     if lastchange < 0:
       lastchange = int(time.time() / 86400)
 
-    if password is None:
-      password = '{crypt}!'
-    elif raw_passwd:
-      password = '{crypt}' + raw_passwd
-    else:
-      password = '{crypt}' + crypt.crypt(password, "$6${0}".format(make_salt()))
-
     ml = {
         'objectClass': [ 'account',
                          'inetLocalMailRecipient',
@@ -323,7 +304,7 @@ class Provisor(object):
         'shadowWarning': [ str(warning) ],
         'shadowInactive': [ str(99999) ],
         'shadowExpire': [ str(99999) ],
-        'userPassword': [ str(password) ],
+        'userPassword': [ '{crypt}!' ],
         'sshPublicKey': [ str(pubkey) ],
         'host': [ str(hostname) ],
         'mailRoutingAddress': [ '{0}@hashbang.sh'.format(username) ],

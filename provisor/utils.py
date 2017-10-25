@@ -1,26 +1,5 @@
-import os
-import re
-import sys
-import tty
-
-import base64
-import grp
-import pwd
-import resource
-import termios
-
-
-def make_salt():
-  salt = ""
-  while len(salt) < 8:
-    c = os.urandom(1)
-    if re.match('[a-zA-Z0-9./]', c):
-      salt += c
-  return salt
-
-
 def drop_privileges(uid_name='nobody', gid_name='nogroup'):
-
+    import grp, pwd, os, resource
     if os.getuid() != 0:  # not root. #yolo
         return
 
@@ -35,6 +14,7 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
 
 
 def getch():
+    import sys, termios, tty
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
@@ -46,6 +26,7 @@ def getch():
 
 
 def validate_pubkey(value):
+    import base64
     if len(value) > 8192 or len(value) < 80:
       raise ValueError("Expected length to be between 80 and 8192 characters")
 
@@ -60,13 +41,14 @@ def validate_pubkey(value):
 
     try:
         base64.decodestring(bytes(value[1]))
-    except:
+    except TypeError:
         raise ValueError("Expected string of base64 encoded data")
 
     return "%s %s" % (value[0], value[1])
 
 
 def validate_username(value):
+    import re
     from reserved import RESERVED_USERNAMES
 
     # Regexp must be kept in sync with
@@ -77,12 +59,4 @@ def validate_username(value):
     if value in RESERVED_USERNAMES:
         raise ValueError('Username is reserved')
 
-    user_exists = True
-    try:
-        pwd.getpwnam(value)
-    except:
-        user_exists = False
-
-    if user_exists:
-        raise ValueError('Username already exists')
     return value
