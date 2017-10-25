@@ -1,5 +1,5 @@
 reserved_usernames = [
-    # Names that might be used for fishing
+    # Names that might be used for phishing
     'about', 'account', 'admin', 'administrator', 'anonymous', 'billing',
     'board', 'calendar', 'contact', 'copyright', 'data', 'development',
     'donate', 'dotfile', 'email', 'example', 'feedback', 'forum', 'image',
