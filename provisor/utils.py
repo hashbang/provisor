@@ -74,8 +74,11 @@ def validate_username(value):
         'images', 'media', 'policy', 'manage', 'messages', 'mobile', 'official',
         'staging', 'development', 'staff', 'portal', 'forum', 'forums', 'pictures',
         'photos', 'status', 'finger', 'private', 'press', 'user', 'users', 'username',
-        'usernames', 'sitemap', 'team', 'teams', 'account', 'accounts', 'chat', 'mail',
+        'usernames', 'sitemap', 'teams', 'account', 'accounts', 'chat', 'mail',
         'email', 'admin', 'admins', 'administrator', 'administrators',
+
+        # Non-RFC2142 email aliases
+        'mailer-daemon', 'nobody', 'root', 'team'
 
         # RFC2142 mailbox names
         ## Business related
