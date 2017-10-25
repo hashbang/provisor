@@ -2,11 +2,9 @@ import copy
 import ldap
 import ldap.modlist
 import time
-import crypt
 
 from collections import OrderedDict
 from exceptions import Exception
-from utils import make_salt
 from random import shuffle
 
 

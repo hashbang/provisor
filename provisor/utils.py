@@ -76,11 +76,5 @@ def validate_username(value):
         raise ValueError('Username is invalid')
     if value in reserved_usernames:
         raise ValueError('Username is reserved')
-    user_exists = True
-    try:
-        pwd.getpwnam(value)
-    except:
-        user_exists = False
-    if user_exists:
-        raise ValueError('Username already exists')
+
     return value
