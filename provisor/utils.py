@@ -67,50 +67,22 @@ def validate_pubkey(value):
 
 
 def validate_username(value):
-    reserved_usernames = [
-        # Names that might be used for fishing
-        'about', 'account', 'admin', 'administrator', 'anonymous', 'billing',
-        'board', 'calendar', 'contact', 'copyright', 'data', 'development',
-        'donate', 'dotfile', 'email', 'example', 'feedback', 'forum', 'image',
-        'inbox', 'index', 'invite', 'jabber', 'legal', 'main', 'manage',
-        'media', 'message', 'mobile', 'official', 'payment', 'photos',
-        'picture', 'policy', 'portal', 'press', 'private', 'sitemap', 'staff',
-        'staging', 'status', 'user', 'username',
-
-        # #! service names
-        'chat', 'finger', 'git', 'im', 'irc', 'ldap', 'mail', 'voip', 'www'
-
-        # Non-RFC2142 email aliases
-        'mailer-daemon', 'nobody', 'root', 'team'
-
-        # RFC2142 mailbox names
-        ## Business related
-        'info', 'marketing', 'sales', 'support',
-
-        ## Network operations
-        'abuse', 'noc', 'security'
-
-        ## Support for specific services
-        'ftp', 'hostmaster', 'news', 'usenet',
-        'uucp', 'postmaster', 'webmaster', 'www'
-    ]
-
-    reserved_usernames += [ name + 's'
-                            for name in reserved_names
-                            if name[-1] != 's'
-    ]
+    from reserved import RESERVED_USERNAMES
 
     # Regexp must be kept in sync with
     #  https://github.com/hashbang/hashbang.sh/blob/master/src/hashbang.sh#L178-191
     if re.compile(r"^[a-z][a-z0-9]{,30}$").match(value) is None:
         raise ValueError('Username is invalid')
-    if value in reserved_usernames:
+
+    if value in RESERVED_USERNAMES:
         raise ValueError('Username is reserved')
+
     user_exists = True
     try:
         pwd.getpwnam(value)
     except:
         user_exists = False
+
     if user_exists:
         raise ValueError('Username already exists')
     return value
