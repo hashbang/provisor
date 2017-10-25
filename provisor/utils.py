@@ -1,17 +1,5 @@
-import os
-import re
-import sys
-import tty
-
-import base64
-import grp
-import pwd
-import resource
-import termios
-
-
 def drop_privileges(uid_name='nobody', gid_name='nogroup'):
-
+    import grp, pwd, os, resource
     if os.getuid() != 0:  # not root. #yolo
         return
 
@@ -26,6 +14,7 @@ def drop_privileges(uid_name='nobody', gid_name='nogroup'):
 
 
 def getch():
+    import sys, termios, tty
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
@@ -37,6 +26,7 @@ def getch():
 
 
 def validate_pubkey(value):
+    import base64
     if len(value) > 8192 or len(value) < 80:
       raise ValueError("Expected length to be between 80 and 8192 characters")
 
@@ -58,6 +48,7 @@ def validate_pubkey(value):
 
 
 def validate_username(value):
+    import re
     reserved_usernames = [
         'about', 'abuse', 'main', 'data', 'example', 'jabber', 'legal', 'invite',
         'copyright', 'contact', 'board', 'feedback', 'support', 'anonymous', 'index',
